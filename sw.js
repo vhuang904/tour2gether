@@ -7,7 +7,7 @@
  */
 
 // 👉 每次重大發布修改此版本號，強制手機客戶端熱更新
-const CACHE_VERSION = '20260919-v50.9';
+const CACHE_VERSION = '20260922-v51.0';
 const STATIC_CACHE_NAME = `bigv-static-${CACHE_VERSION}`;
 const IMAGE_CACHE_NAME = `bigv-images-${CACHE_VERSION}`;
 
