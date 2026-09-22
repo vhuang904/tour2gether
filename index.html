@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <meta name="app-version" content="20260916-v50.4" />
+  <meta name="app-version" content="20260922-v51.0" />
   <meta name="theme-color" content="#020617" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -5816,7 +5816,7 @@ const arbitration = detectQueryTargetCity(msg);
       }
 
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=20260916-v50.4').then((reg) => {
+        navigator.serviceWorker.register('./sw.js?v=20260922-v51.0').then((reg) => {
           if (reg.waiting) {
             showPwaUpdateModal(reg.waiting);
           }
