@@ -1884,12 +1884,19 @@
     }
 
     function detectDefaultAppLanguage() {
-      const saved = localStorage.getItem('ph_app_lang');
-      if (saved && (saved === 'zh-TW' || saved === 'en')) return saved;
-      const sys = (navigator.language || (navigator.languages && navigator.languages[0]) || 'en').toLowerCase();
-      if (sys.startsWith('zh')) return 'zh-TW';
-      return 'en';
-    }
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlLang = urlParams.get('lang');
+  if (urlLang === 'en' || urlLang === 'zh' || urlLang === 'zh-TW') {
+    const target = (urlLang === 'en') ? 'en' : 'zh-TW';
+    localStorage.setItem('ph_app_lang', target);
+    return target;
+  }
+  const saved = localStorage.getItem('ph_app_lang');
+  if (saved && (saved === 'zh-TW' || saved === 'en')) return saved;
+  const sys = (navigator.language || (navigator.languages && navigator.languages[0]) || 'en').toLowerCase();
+  if (sys.startsWith('zh')) return 'zh-TW';
+  return 'en';
+}
 
     const urlParams = new URLSearchParams(window.location.search);
     const deepTab = urlParams.get('tab');
