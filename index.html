@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <meta name="app-version" content="20260916-v50.3" />
+  <meta name="app-version" content="20261001-v51.2" />
   <meta name="theme-color" content="#020617" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -1219,19 +1219,19 @@
               </button>
               <div id="theme-dropdown-menu" class="hidden absolute right-0 mt-1 w-36 bg-white border border-amber-400/60 rounded-xl shadow-2xl py-1 z-50 text-xs">
                 <button data-set-theme="dark" class="w-full text-left px-3 py-1.5 text-slate-900 hover:bg-slate-100 flex items-center gap-2 text-[11px] font-bold">
-                  <span class="w-2.5 h-2.5 rounded-full border border-amber-400 flex-shrink-0" style="background-color: #020617 !important; background: #020617 !important;"></span> 暗夜尊爵
+                  <span class="w-2.5 h-2.5 rounded-full border border-amber-400 flex-shrink-0" style="background-color: #020617 !important; background: #020617 !important;"></span> <span data-i18n="themeDarkOption">暗夜尊爵</span>
                 </button>
                 <button data-set-theme="light" class="w-full text-left px-3 py-1.5 text-[#EA580C] hover:bg-orange-50 flex items-center gap-2 text-[11px] font-bold">
-                  <span class="w-2.5 h-2.5 rounded-full bg-orange-500 border border-white"></span> 暖陽金橘
+                  <span class="w-2.5 h-2.5 rounded-full bg-orange-500 border border-white"></span> <span data-i18n="themeLightOption">暖陽金橘</span>
                 </button>
                 <button data-set-theme="amethyst" class="w-full text-left px-3 py-1.5 text-[#8E4D88] hover:bg-purple-50 flex items-center gap-2 text-[11px] font-bold">
-                  <span class="w-2.5 h-2.5 rounded-full bg-[#8E4D88] border border-purple-200"></span> 暮光紫霞
+                  <span class="w-2.5 h-2.5 rounded-full bg-[#8E4D88] border border-purple-200"></span> <span data-i18n="themeAmethystOption">暮光紫霞</span>
                 </button>
                 <button data-set-theme="ocean" class="w-full text-left px-3 py-1.5 text-[#1D4ED8] hover:bg-blue-50 flex items-center gap-2 text-[11px] font-bold">
-                  <span class="w-2.5 h-2.5 rounded-full bg-[#1D4ED8] border border-blue-200"></span> 海島湛藍
+                  <span class="w-2.5 h-2.5 rounded-full bg-[#1D4ED8] border border-blue-200"></span> <span data-i18n="themeOceanOption">海島湛藍</span>
                 </button>
                 <button data-set-theme="sakura" class="w-full text-left px-3 py-1.5 text-[#DB2777] hover:bg-pink-50 flex items-center gap-2 text-[11px] font-bold">
-                  <span class="w-2.5 h-2.5 rounded-full bg-[#EC4899] border border-pink-200"></span> 櫻花粉嫩
+                  <span class="w-2.5 h-2.5 rounded-full bg-[#EC4899] border border-pink-200"></span> <span data-i18n="themeSakuraOption">櫻花粉嫩</span>
                 </button>
               </div>
             </div>
@@ -1737,7 +1737,12 @@
         profileTabFavorites: '私房清單',
         profileTabInbox: '站內信箱',
         inboxSubtitle: '每週探索、特惠與通知',
-        btnMarkAllRead: '全部已讀'
+        btnMarkAllRead: '全部已讀',
+        themeDarkOption: '暗夜尊爵',
+        themeLightOption: '暖陽金橘',
+        themeAmethystOption: '暮光紫霞',
+        themeOceanOption: '海島湛藍',
+        themeSakuraOption: '櫻花粉嫩'
       },
       'en': {
         appTitle: "BigV's Getaway Nest",
@@ -1843,7 +1848,12 @@
         profileTabFavorites: 'Wishlist',
         profileTabInbox: 'Inbox',
         inboxSubtitle: 'Weekly discoveries, promos & alerts',
-        btnMarkAllRead: 'Mark all as read'
+        btnMarkAllRead: 'Mark all as read',
+        themeDarkOption: 'Dark Luxury',
+        themeLightOption: 'Sunny Orange',
+        themeAmethystOption: 'Twilight Purple',
+        themeOceanOption: 'Ocean Blue',
+        themeSakuraOption: 'Sakura Pink'
       }
     };
 
@@ -2029,6 +2039,12 @@
       updateHeaderAuthBtn();
       renderRegionPills();
       renderSubFilterBar();
+      if (typeof updateUserModalView === 'function') {
+        updateUserModalView();
+      }
+      if (typeof applyAppTheme === 'function') {
+        applyAppTheme(localStorage.getItem('bigv_app_theme') || 'dark');
+      }
       preserveScrollPosition(() => renderContent());
     }
 
@@ -2325,9 +2341,11 @@
       document.getElementById('auth-modal-user-view').classList.remove('hidden');
       document.getElementById('auth-modal-tasks-view').classList.add('hidden');
 
-      document.getElementById('user-modal-name').innerText = currentUserProfile.displayName || currentUser.displayName || '吃貨會員';
+      const defaultMemberName = currentLang === 'en' ? 'Gourmet Member' : '吃貨會員';
+      const defaultMemberEmail = currentLang === 'en' ? 'Google Verified Member' : 'Google 驗證會員';
+      document.getElementById('user-modal-name').innerText = currentUserProfile.displayName || currentUser.displayName || defaultMemberName;
       document.getElementById('user-modal-avatar').src = currentUserProfile.photoURL || currentUser.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200';
-      document.getElementById('user-modal-email').innerText = currentUser.email || 'Google 驗證會員';
+      document.getElementById('user-modal-email').innerText = currentUser.email || defaultMemberEmail;
 
       const points = currentUserProfile.points || 50;
       let levelTitle = currentLang === 'en' ? 'LV.1 Explorer' : 'LV.1 探店初心者';
@@ -4652,31 +4670,31 @@ async function handlePhotoSelection(files) {
       
       if (theme === 'light') {
         document.documentElement.classList.add('light');
-        currentThemeLabel.innerText = '暖陽';
+        currentThemeLabel.innerText = currentLang === 'en' ? 'Sunny' : '暖陽';
         themeDropdownBtn.className = 'bg-white border border-orange-300 text-orange-600 text-[10px] font-black px-2.5 py-1 rounded-lg flex items-center justify-center gap-1 transition shadow-sm';
         currentThemeIcon.style.color = '#EA580C';
         if (metaThemeColor) metaThemeColor.setAttribute('content', '#F97316');
       } else if (theme === 'amethyst') {
         document.documentElement.classList.add('amethyst');
-        currentThemeLabel.innerText = '紫霞';
+        currentThemeLabel.innerText = currentLang === 'en' ? 'Purple' : '紫霞';
         themeDropdownBtn.className = 'bg-white border border-purple-300 text-[#8E4D88] text-[10px] font-black px-2.5 py-1 rounded-lg flex items-center justify-center gap-1 transition shadow-sm';
         currentThemeIcon.style.color = '#8E4D88';
         if (metaThemeColor) metaThemeColor.setAttribute('content', '#6B3E75');
       } else if (theme === 'ocean') {
         document.documentElement.classList.add('ocean');
-        currentThemeLabel.innerText = '湛藍';
+        currentThemeLabel.innerText = currentLang === 'en' ? 'Ocean' : '湛藍';
         themeDropdownBtn.className = 'bg-white border border-blue-300 text-[#1D4ED8] text-[10px] font-black px-2.5 py-1 rounded-lg flex items-center justify-center gap-1 transition shadow-sm';
         currentThemeIcon.style.color = '#1D4ED8';
         if (metaThemeColor) metaThemeColor.setAttribute('content', '#1E3A8A');
       } else if (theme === 'sakura') {
         document.documentElement.classList.add('sakura');
-        currentThemeLabel.innerText = '櫻花';
+        currentThemeLabel.innerText = currentLang === 'en' ? 'Pink' : '櫻花';
         themeDropdownBtn.className = 'bg-white border border-pink-300 text-[#DB2777] text-[10px] font-black px-2.5 py-1 rounded-lg flex items-center justify-center gap-1 transition shadow-sm';
         currentThemeIcon.style.color = '#DB2777';
         if (metaThemeColor) metaThemeColor.setAttribute('content', '#EC4899');
       } else {
         document.documentElement.classList.add('dark');
-        currentThemeLabel.innerText = '暗夜';
+        currentThemeLabel.innerText = currentLang === 'en' ? 'Dark' : '暗夜';
         themeDropdownBtn.className = 'bg-slate-900 border border-amber-400/40 text-amber-300 text-[10px] font-bold px-2 py-1 rounded-lg flex items-center justify-center gap-1 transition shadow-sm';
         currentThemeIcon.style.color = '#F59E0B';
         theme = 'dark';
@@ -5824,7 +5842,7 @@ const arbitration = detectQueryTargetCity(msg);
       }
 
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=20260916-v50.3').then((reg) => {
+        navigator.serviceWorker.register('./sw.js?v=20261001-v51.2').then((reg) => {
           if (reg.waiting) {
             showPwaUpdateModal(reg.waiting);
           }
