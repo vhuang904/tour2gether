@@ -1020,13 +1020,13 @@
           <i class="fa-solid fa-arrows-rotate fa-spin text-base"></i>
         </div>
         <div class="min-w-0 flex-1 pr-6">
-          <h4 class="text-sm font-black text-amber-300 tracking-wide">發現全新版本更新！</h4>
-          <p class="text-[11px] text-slate-300 mt-0.5">系統已為您下載最新功能與修復項目。</p>
+          <h4 class="text-sm font-black text-amber-300 tracking-wide" data-i18n="pwaUpdateTitle">發現全新版本更新！</h4>
+          <p class="text-[11px] text-slate-300 mt-0.5" data-i18n="pwaUpdateDesc">系統已為您下載最新功能與修復項目。</p>
         </div>
       </div>
 
       <button id="btn-apply-pwa-update" type="button" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs shadow-md transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer">
-        <span>立即套用新版本</span> <i class="fa-solid fa-arrow-right text-[11px]"></i>
+        <span data-i18n="btnApplyPwaUpdate">立即套用新版本</span> <i class="fa-solid fa-arrow-right text-[11px]"></i>
       </button>
     </div>
   </div>
@@ -1278,12 +1278,12 @@
           <div class="profile-tabs-header">
             <button type="button" id="tab-btn-favorites" class="profile-tab-btn active" onclick="window.switchProfileTab('favorites')">
               <i class="fa-solid fa-heart text-rose-500 text-xs"></i>
-              <span>私房清單</span>
+              <span data-i18n="profileTabFavorites">私房清單</span>
               <span id="fav-count-badge" class="text-[10px] opacity-70 font-mono">(0)</span>
             </button>
             <button type="button" id="tab-btn-inbox" class="profile-tab-btn" onclick="window.switchProfileTab('inbox')">
               <i class="fa-solid fa-inbox text-xs"></i>
-              <span>站內信箱</span>
+              <span data-i18n="profileTabInbox">站內信箱</span>
               <span id="tab-inbox-badge" class="tab-badge hidden"></span>
             </button>
           </div>
@@ -1296,9 +1296,9 @@
           <!-- Tab 2: 站內信箱列表 -->
           <div id="tab-content-inbox" class="profile-tab-content flex-1 flex flex-col min-h-0" style="display: none;">
             <div class="inbox-toolbar">
-              <span class="inbox-subtitle">每週探索、特惠與通知</span>
+              <span class="inbox-subtitle" data-i18n="inboxSubtitle">每週探索、特惠與通知</span>
               <button type="button" id="btn-mark-all-read" class="btn-mark-read" onclick="window.markAllNotificationsRead()">
-                <i class="fa-solid fa-check-double"></i> 全部已讀
+                <i class="fa-solid fa-check-double"></i> <span data-i18n="btnMarkAllRead">全部已讀</span>
               </button>
             </div>
             <div id="inbox-list-container" class="inbox-list max-h-[160px]">
@@ -1730,7 +1730,14 @@
         commentPosting: '發表中...',
         commentSuccessToast: '🎉 點評發表成功！已為您累計 +20 積分！',
         commentReviewsSuffix: '點評',
-        chatPlaceholder: '問點什麼吧（例：馬尼拉海鮮酒家、頂級和牛...）'
+        chatPlaceholder: '問點什麼吧（例：馬尼拉海鮮酒家、頂級和牛...）',
+        pwaUpdateTitle: '發現全新版本更新！',
+        pwaUpdateDesc: '系統已為您下載最新功能與修復項目。',
+        btnApplyPwaUpdate: '立即套用新版本',
+        profileTabFavorites: '私房清單',
+        profileTabInbox: '站內信箱',
+        inboxSubtitle: '每週探索、特惠與通知',
+        btnMarkAllRead: '全部已讀'
       },
       'en': {
         appTitle: "BigV's Getaway Nest",
@@ -1829,7 +1836,14 @@
         commentPosting: 'Posting...',
         commentSuccessToast: '🎉 Review posted! +20 Points earned!',
         commentReviewsSuffix: 'Reviews',
-        chatPlaceholder: 'Ask anything (e.g. Manila seafood, best wagyu...)'
+        chatPlaceholder: 'Ask anything (e.g. Manila seafood, best wagyu...)',
+        pwaUpdateTitle: 'New Version Available!',
+        pwaUpdateDesc: 'The latest features and fixes are ready.',
+        btnApplyPwaUpdate: 'Update Now',
+        profileTabFavorites: 'Wishlist',
+        profileTabInbox: 'Inbox',
+        inboxSubtitle: 'Weekly discoveries, promos & alerts',
+        btnMarkAllRead: 'Mark all as read'
       }
     };
 
@@ -2560,14 +2574,14 @@
       if (!container) return;
 
       const favIds = Array.from(userFavoritesSet);
-      if (badge) badge.innerText = `${favIds.length} 個收藏`;
+      if (badge) badge.innerText = currentLang === 'en' ? `(${favIds.length})` : `(${favIds.length})`;
 
       if (favIds.length === 0) {
         container.innerHTML = `
           <div id="fav-empty-box" class="text-center py-6 text-slate-500 rounded-xl border transition-colors">
             <i class="fa-regular fa-heart text-xl mb-1 text-slate-600 block"></i>
-            <span class="text-[11px]">尚未收藏任何地點</span>
-            <p class="text-[9px] text-slate-600 mt-0.5">點擊店家卡片右上角愛心即可快速加入！</p>
+            <span class="text-[11px]">${currentLang === 'en' ? 'No saved places yet' : '尚未收藏任何地點'}</span>
+            <p class="text-[9px] text-slate-600 mt-0.5">${currentLang === 'en' ? 'Click the heart icon on any card to save it!' : '點擊店家卡片右上角愛心即可快速加入！'}</p>
           </div>
         `;
         return;
@@ -2593,23 +2607,23 @@
               <div class="min-w-0 flex-1">
                 <h6 class="font-bold text-xs text-white truncate leading-tight hover:text-amber-400 transition">${name}</h6>
                 <div class="flex items-center gap-1.5 text-[9px] text-slate-400 mt-0.5">
-                  <span class="truncate">${item.city || '菲律賓'} · ${item.category || '精選'}</span>
+                  <span class="truncate">${item.city || (currentLang === 'en' ? 'Philippines' : '菲律賓')} · ${item.category || (currentLang === 'en' ? 'Featured' : '精選')}</span>
                   <span class="font-bold flex items-center gap-0.5 flex-shrink-0"><i class="fa-solid fa-star text-[8px]"></i>${Number(item.google_rating || item.googleRating || 4.8).toFixed(1)}</span>
                 </div>
               </div>
             </div>
 
             <div class="flex items-center gap-1.5 flex-shrink-0">
-              <a href="${cleanPhone ? `tel:${cleanPhone}` : '#'}" title="撥打電話" class="btn-fav-action w-7 h-7 rounded-lg flex items-center justify-center text-xs transition ${!cleanPhone ? 'opacity-30 pointer-events-none' : ''} text-emerald-500">
+              <a href="${cleanPhone ? `tel:${cleanPhone}` : '#'}" title="${currentLang === 'en' ? 'Call' : '撥打電話'}" class="btn-fav-action w-7 h-7 rounded-lg flex items-center justify-center text-xs transition ${!cleanPhone ? 'opacity-30 pointer-events-none' : ''} text-emerald-500">
                 <i class="fa-solid fa-phone"></i>
               </a>
-              <a href="${navUrl}" target="_blank" rel="noopener noreferrer" title="路線導航" class="btn-fav-action w-7 h-7 rounded-lg flex items-center justify-center text-xs transition text-sky-500">
+              <a href="${navUrl}" target="_blank" rel="noopener noreferrer" title="${currentLang === 'en' ? 'Directions' : '路線導航'}" class="btn-fav-action w-7 h-7 rounded-lg flex items-center justify-center text-xs transition text-sky-500">
                 <i class="fa-solid fa-location-arrow"></i>
               </a>
-              <button type="button" title="分享店家" onclick="window.shareStoreCard('${sId}', event)" class="btn-fav-action w-7 h-7 rounded-lg flex items-center justify-center text-xs transition text-amber-400">
+              <button type="button" title="${currentLang === 'en' ? 'Share' : '分享店家'}" onclick="window.shareStoreCard('${sId}', event)" class="btn-fav-action w-7 h-7 rounded-lg flex items-center justify-center text-xs transition text-amber-400">
                 <i class="fa-solid fa-share-nodes"></i>
               </button>
-              <button type="button" title="取消收藏" onclick="window.toggleFavorite('${sId}', event)" class="btn-fav-action w-7 h-7 rounded-lg flex items-center justify-center text-xs transition text-rose-500">
+              <button type="button" title="${currentLang === 'en' ? 'Remove Favorite' : '取消收藏'}" onclick="window.toggleFavorite('${sId}', event)" class="btn-fav-action w-7 h-7 rounded-lg flex items-center justify-center text-xs transition text-rose-500">
                 <i class="fa-solid fa-heart"></i>
               </button>
             </div>
@@ -3709,7 +3723,7 @@ window.handlePokerCardClick = function(deckId, idx, url) {
     
     async function loadStoreComments(storeId) {
       if (!commentListContainer) return;
-      commentListContainer.innerHTML = '<div class="text-center py-6 text-slate-500 text-xs"><i class="fa-solid fa-spinner fa-spin mr-1.5 text-amber-400"></i>載入老饕點評中...</div>';
+      commentListContainer.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs"><i class="fa-solid fa-spinner fa-spin mr-1.5 text-amber-400"></i>${currentLang === 'en' ? 'Loading gourmet reviews...' : '載入老饕點評中...'}</div>`;
 
       try {
         let comments = [];
@@ -3726,8 +3740,8 @@ window.handlePokerCardClick = function(deckId, idx, url) {
           commentListContainer.innerHTML = `
             <div class="text-center py-8">
               <i class="fa-regular fa-comment-dots text-slate-600 text-3xl mb-2 block"></i>
-              <p class="text-slate-400 text-xs font-bold">目前暫無公開評論，成為第一位老饕評論者吧！</p>
-              <p class="text-amber-400/80 text-[10px] mt-1">分享真實體驗現賺 +20 積分</p>
+              <p class="text-slate-400 text-xs font-bold">${currentLang === 'en' ? 'No reviews yet. Be the first gourmet reviewer!' : '目前暫無公開評論，成為第一位老饕評論者吧！'}</p>
+              <p class="text-amber-400/80 text-[10px] mt-1">${currentLang === 'en' ? 'Share your experience & earn +20 Points' : '分享真實體驗現賺 +20 積分'}</p>
             </div>
           `;
           return;
@@ -3746,16 +3760,17 @@ window.handlePokerCardClick = function(deckId, idx, url) {
         const isAdmin = currentUser && ADMIN_EMAILS.includes((currentUser.email || '').toLowerCase().trim());
 
         const formatCommentTime = (rawTime) => {
-          if (!rawTime) return '剛剛';
+          const justNowText = currentLang === 'en' ? 'Just now' : '剛剛';
+          if (!rawTime) return justNowText;
           const ms = typeof rawTime === 'number' ? rawTime : (rawTime.toMillis ? rawTime.toMillis() : new Date(rawTime).getTime());
-          if (!ms) return '剛剛';
+          if (!ms) return justNowText;
 
           const d = new Date(ms);
           const now = Date.now();
           const diffMin = Math.floor((now - ms) / 60000);
 
-          if (diffMin < 1) return '剛剛';
-          if (diffMin < 60) return `${diffMin}分鐘前`;
+          if (diffMin < 1) return justNowText;
+          if (diffMin < 60) return currentLang === 'en' ? `${diffMin}m ago` : `${diffMin}分鐘前`;
           
           const month = String(d.getMonth() + 1).padStart(2, '0');
           const date = String(d.getDate()).padStart(2, '0');
