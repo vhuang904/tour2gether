@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <meta name="app-version" content="20261001-v51.2" />
+  <meta name="app-version" content="20261001-v51.3" />
   <meta name="theme-color" content="#020617" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -1371,26 +1371,26 @@
 
       <div class="space-y-2.5 text-xs">
         <div>
-          <label class="block text-[11px] font-bold text-slate-300 mb-1"><span data-i18n="recCityLabel">所在城市</span> <span class="text-slate-500 font-normal">* 必填</span></label>
+          <label class="block text-[11px] font-bold text-slate-300 mb-1"><span data-i18n="recCityLabel">所在城市</span> <span data-i18n="requiredField" class="text-slate-500 font-normal">* 必填</span></label>
           <select id="rec-city" class="w-full bg-white border-2 border-amber-400/60 text-slate-950 rounded-xl p-2.5 text-xs font-bold focus:outline-none">
-            <option value="manila">🏙️ 馬尼拉 (Metro Manila)</option>
-            <option value="cebu">🌊 宿霧 (Metro Cebu)</option>
-            <option value="davao">🌺 達沃 (Davao City)</option>
-            <option value="boracay">🏖️ 長灘島 (Boracay)</option>
-            <option value="palawan">🏝️ 巴拉望 (Palawan)</option>
-            <option value="bohol">🍫 薄荷島 (Bohol)</option>
-            <option value="siargao">🏄‍♂️ 錫亞高島 (Siargao)</option>
-            <option value="samal">🌴 薩馬爾島 (Samal Island)</option>
+            <option value="manila" data-i18n="recCityManila">🏙️ 馬尼拉 (Metro Manila)</option>
+            <option value="cebu" data-i18n="recCityCebu">🌊 宿霧 (Metro Cebu)</option>
+            <option value="davao" data-i18n="recCityDavao">🌺 達沃 (Davao City)</option>
+            <option value="boracay" data-i18n="recCityBoracay">🏖️ 長灘島 (Boracay)</option>
+            <option value="palawan" data-i18n="recCityPalawan">🏝️ 巴拉望 (Palawan)</option>
+            <option value="bohol" data-i18n="recCityBohol">🍫 薄荷島 (Bohol)</option>
+            <option value="siargao" data-i18n="recCitySiargao">🏄‍♂️ 錫亞高島 (Siargao)</option>
+            <option value="samal" data-i18n="recCitySamal">🌴 薩馬爾島 (Samal Island)</option>
           </select>
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold text-slate-300 mb-1"><span data-i18n="recStoreLabel">店家名稱 / Google Maps 連結</span> <span class="text-slate-500 font-normal">* 必填</span></label>
+          <label class="block text-[11px] font-bold text-slate-300 mb-1"><span data-i18n="recStoreLabel">店家名稱 / Google Maps 連結</span> <span data-i18n="requiredField" class="text-slate-500 font-normal">* 必填</span></label>
           <input type="text" id="rec-store-name" data-i18n-placeholder="recStorePlaceholder" placeholder="例：京都炭火燒肉 或 貼上地圖連結" class="w-full bg-white border-2 border-amber-400/60 text-slate-950 rounded-xl p-2.5 text-xs font-medium placeholder-slate-400 focus:outline-none focus:border-amber-500" />
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold text-slate-300 mb-1"><span data-i18n="recReasonLabel">推薦原因 / 必點招牌菜</span> <span class="text-slate-500 font-normal">* 必填</span></label>
+          <label class="block text-[11px] font-bold text-slate-300 mb-1"><span data-i18n="recReasonLabel">推薦原因 / 必點招牌菜</span> <span data-i18n="requiredField" class="text-slate-500 font-normal">* 必填</span></label>
           <textarea id="rec-reason" rows="3" data-i18n-placeholder="recReasonPlaceholder" placeholder="例：生牛肉與厚切牛舌極致鮮甜，老闆熱情招待！" class="w-full bg-white border-2 border-amber-400/60 text-slate-950 rounded-xl p-2.5 text-xs font-medium placeholder-slate-400 focus:outline-none focus:border-amber-500"></textarea>
         </div>
       </div>
@@ -1502,25 +1502,25 @@
   <div id="share-recommend-modal" class="fixed inset-0 z-[9999] hidden flex items-center justify-center p-3.5 bg-black/70 backdrop-blur-xs">
     <div class="rounded-2xl w-full max-w-md flex flex-col relative overflow-hidden shadow-2xl border" style="background: var(--theme-card-bg, #0f172a); border-color: var(--theme-border, #334155);">
       <div class="flex-shrink-0 flex items-center justify-between border-b px-4 py-3" style="border-color: var(--theme-border, #334155);">
-        <h3 class="font-bold text-sm truncate" style="color: var(--theme-text-title, #f8fafc);">寫下你的私房推薦</h3>
+        <h3 data-i18n="shareRecommendTitle" class="font-bold text-sm truncate" style="color: var(--theme-text-title, #f8fafc);">寫下你的私房推薦</h3>
         <button type="button" onclick="window.closeShareRecommendModal()" class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm cursor-pointer transition" style="color: var(--theme-text-body, #94a3b8);">✕</button>
       </div>
 
       <div class="p-4 space-y-3">
         <p id="share-recommend-headline" class="text-xs font-bold leading-relaxed" style="color: var(--theme-text-title, #f8fafc);"></p>
 
-        <textarea id="share-recommend-input" rows="4" maxlength="200"
+        <textarea id="share-recommend-input" rows="4" maxlength="200" data-i18n-placeholder="shareRecommendPlaceholder"
                   placeholder="寫點想對朋友說的話，例如：這是我最近很愛的店，下次一起去吃..."
                   class="w-full rounded-xl px-3 py-2.5 text-xs leading-relaxed border resize-none focus:outline-none"
                   style="background: var(--theme-card-sub-bg, #1e293b); border-color: var(--theme-border, #334155); color: var(--theme-text-title, #f8fafc);"></textarea>
       </div>
 
       <div class="flex-shrink-0 p-3 border-t flex gap-2.5" style="border-color: var(--theme-border, #334155); background: var(--theme-card-bg, #0f172a);">
-        <button type="button" onclick="window.closeShareRecommendModal()" class="flex-1 py-2.5 rounded-xl font-bold text-xs border transition active:scale-95"
+        <button type="button" data-i18n="btnCancel" onclick="window.closeShareRecommendModal()" class="flex-1 py-2.5 rounded-xl font-bold text-xs border transition active:scale-95"
                 style="border-color: var(--theme-border, #334155); color: var(--theme-text-body, #94a3b8); background: var(--theme-card-sub-bg, #1e293b);">
           取消
         </button>
-        <button type="button" id="btn-submit-share-recommend" onclick="window.submitShareRecommend()" class="flex-1 py-2.5 rounded-xl font-black text-xs shadow-md active:scale-95 transition"
+        <button type="button" id="btn-submit-share-recommend" data-i18n="btnShareRecommend" onclick="window.submitShareRecommend()" class="flex-1 py-2.5 rounded-xl font-black text-xs shadow-md active:scale-95 transition"
                 style="background: var(--theme-gradient); color: var(--theme-badge-text, #ffffff);">
           確認送出 / 分享
         </button>
@@ -1742,7 +1742,20 @@
         themeLightOption: '暖陽金橘',
         themeAmethystOption: '暮光紫霞',
         themeOceanOption: '海島湛藍',
-        themeSakuraOption: '櫻花粉嫩'
+        themeSakuraOption: '櫻花粉嫩',
+        requiredField: '* 必填',
+        recCityManila: '🏙️ 馬尼拉 (Metro Manila)',
+        recCityCebu: '🌊 宿霧 (Metro Cebu)',
+        recCityDavao: '🌺 達沃 (Davao City)',
+        recCityBoracay: '🏖️ 長灘島 (Boracay)',
+        recCityPalawan: '🏝️ 巴拉望 (Palawan)',
+        recCityBohol: '🍫 薄荷島 (Bohol)',
+        recCitySiargao: '🏄‍♂️ 錫亞高島 (Siargao)',
+        recCitySamal: '🌴 薩馬爾島 (Samal Island)',
+        shareRecommendTitle: '寫下你的私房推薦',
+        shareRecommendPlaceholder: '寫點想對朋友說的話，例如：這是我最近很愛的店，下次一起去吃...',
+        btnCancel: '取消',
+        btnShareRecommend: '確認送出 / 分享'
       },
       'en': {
         appTitle: "BigV's Getaway Nest",
@@ -1853,7 +1866,20 @@
         themeLightOption: 'Sunny Orange',
         themeAmethystOption: 'Twilight Purple',
         themeOceanOption: 'Ocean Blue',
-        themeSakuraOption: 'Sakura Pink'
+        themeSakuraOption: 'Sakura Pink',
+        requiredField: '* Required',
+        recCityManila: '🏙️ Metro Manila',
+        recCityCebu: '🌊 Metro Cebu',
+        recCityDavao: '🌺 Davao City',
+        recCityBoracay: '🏖️ Boracay',
+        recCityPalawan: '🏝️ Palawan',
+        recCityBohol: '🍫 Bohol',
+        recCitySiargao: '🏄‍♂️ Siargao',
+        recCitySamal: '🌴 Samal Island',
+        shareRecommendTitle: 'Recommend a Spot',
+        shareRecommendPlaceholder: 'Add a note for friends, e.g. Let’s try this spot together!',
+        btnCancel: 'Cancel',
+        btnShareRecommend: 'Share'
       }
     };
 
@@ -2052,6 +2078,7 @@
       if (typeof applyAppTheme === 'function') {
         applyAppTheme(localStorage.getItem('bigv_app_theme') || 'dark');
       }
+      renderInboxUI(currentInboxList, parseInt(localStorage.getItem('bigv_last_read_inbox_time') || '0', 10));
       preserveScrollPosition(() => renderContent());
     }
 
@@ -2094,7 +2121,7 @@
         const permission = await Notification.requestPermission();
         if (permission !== 'granted') {
           updatePushToggleUI(false);
-          if (isManual) showToast('未開啟推播授權，請至瀏覽器設定允許通知', 'fa-bell-slash');
+          if (isManual) showToast(currentLang === 'en' ? 'Allow notifications in your browser settings.' : '未開啟推播授權，請至瀏覽器設定允許通知', 'fa-bell-slash');
           return;
         }
 
@@ -2116,7 +2143,7 @@
           }, { merge: true });
 
           updatePushToggleUI(true);
-          if (isManual) showToast('🎉 已成功開啟特約門市與即時優惠推播！', 'fa-bell');
+          if (isManual) showToast(currentLang === 'en' ? '🎉 Store and deal alerts enabled!' : '🎉 已成功開啟特約門市與即時優惠推播！', 'fa-bell');
         }
       } catch (err) {
         console.warn('[Push] 授權或 Token 異常:', err);
@@ -2128,9 +2155,9 @@
       pushToggleBtn.addEventListener('click', () => {
         if (!currentUser) {
           showToast(
-            '🔒 請先登入會員，解鎖特約門市與專屬即時推播！',
+            currentLang === 'en' ? '🔒 Sign in for store and deal alerts!' : '🔒 請先登入會員，解鎖特約門市與專屬即時推播！',
             'fa-lock',
-            '立即登入',
+            currentLang === 'en' ? 'Sign In' : '立即登入',
             () => {
               closeAiChat();
               openAuthModal();
@@ -2141,7 +2168,7 @@
         const isCurrentActive = pushToggleBtn.getAttribute('aria-checked') === 'true';
         if (isCurrentActive) {
           updatePushToggleUI(false);
-          showToast('已暫停即時推播提醒', 'fa-bell-slash');
+          showToast(currentLang === 'en' ? 'Alerts paused' : '已暫停即時推播提醒', 'fa-bell-slash');
         } else {
           requestPushNotificationPermission(currentUser, true);
         }
@@ -2419,12 +2446,12 @@
 
       const allItems = [...allRestaurants, ...allAttractions, ...allMedical];
       const item = allItems.find(x => String(x.id || x.place_id).trim().toLowerCase() === activeShareStoreId.toLowerCase());
-      const storeName = item ? (item.name_zh || item.name_en || item.name || activeShareStoreId) : activeShareStoreId;
-      const userName = currentUserProfile.displayName || currentUser?.displayName || '吃貨會員';
+      const storeName = item ? ((currentLang === 'en' && item.name_en) || item.name_zh || item.name_en || item.name || activeShareStoreId) : activeShareStoreId;
+      const userName = currentUserProfile.displayName || currentUser?.displayName || (currentLang === 'en' ? 'Member' : '吃貨會員');
 
       const headlineEl = document.getElementById('share-recommend-headline');
       const inputEl = document.getElementById('share-recommend-input');
-      if (headlineEl) headlineEl.innerText = `【${userName}】推薦你這家店：【${storeName}】`;
+      if (headlineEl) headlineEl.innerText = currentLang === 'en' ? `${userName} recommends: ${storeName}` : `【${userName}】推薦你這家店：【${storeName}】`;
       if (inputEl) inputEl.value = '';
 
       const modal = document.getElementById('share-recommend-modal');
@@ -2444,8 +2471,8 @@
       const sId = activeShareStoreId;
       const allItems = [...allRestaurants, ...allAttractions, ...allMedical];
       const item = allItems.find(x => String(x.id || x.place_id).trim().toLowerCase() === sId.toLowerCase());
-      const storeName = item ? (item.name_zh || item.name_en || item.name || sId) : sId;
-      const userName = currentUserProfile.displayName || currentUser?.displayName || '吃貨會員';
+      const storeName = item ? ((currentLang === 'en' && item.name_en) || item.name_zh || item.name_en || item.name || sId) : sId;
+      const userName = currentUserProfile.displayName || currentUser?.displayName || (currentLang === 'en' ? 'Member' : '吃貨會員');
 
       const inputEl = document.getElementById('share-recommend-input');
       const customMsg = (inputEl?.value || '').trim();
@@ -2457,7 +2484,7 @@
       if (refUid) url.searchParams.set('ref', refUid);
       const shareUrl = url.toString();
 
-      const headline = `【${userName}】推薦你這家店：【${storeName}】`;
+      const headline = currentLang === 'en' ? `${userName} recommends: ${storeName}` : `【${userName}】推薦你這家店：【${storeName}】`;
       const lines = [headline];
       if (customMsg) lines.push(customMsg);
       lines.push(shareUrl);
@@ -2466,7 +2493,7 @@
       if (navigator.share) {
         navigator.share({ title: storeName, text: lines.slice(0, -1).join('\n'), url: shareUrl }).catch(() => {});
       } else if (navigator.clipboard) {
-        navigator.clipboard.writeText(fullMessage).then(() => showToast('已複製推薦訊息與連結', 'fa-link'));
+        navigator.clipboard.writeText(fullMessage).then(() => showToast(currentLang === 'en' ? 'Note and link copied!' : '已複製推薦訊息與連結', 'fa-link'));
       }
 
       window.closeShareRecommendModal();
@@ -2665,9 +2692,9 @@
 
       if (!currentUser) {
         showToast(
-          '🔒 請先登入會員，解鎖專屬私房收藏服務！', 
+          currentLang === 'en' ? '🔒 Sign in to save your favorite spots!' : '🔒 請先登入會員，解鎖專屬私房收藏服務！',
           'fa-lock', 
-          '立即登入', 
+          currentLang === 'en' ? 'Sign In' : '立即登入',
           () => {
             closeAiChat();
             openAuthModal();
@@ -2679,13 +2706,13 @@
       const sId = String(storeId).trim();
       if (userFavoritesSet.has(sId)) {
         userFavoritesSet.delete(sId);
-        showToast('💔 已自私房口袋名單移除', 'fa-heart-crack');
+        showToast(currentLang === 'en' ? '💔 Removed from wishlist' : '💔 已自私房口袋名單移除', 'fa-heart-crack');
       } else {
         userFavoritesSet.add(sId);
         showToast(
-          '❤️ 已成功收藏！請點右上角頭像查看私房名單', 
+          currentLang === 'en' ? '❤️ Saved! Tap your avatar to view your wishlist.' : '❤️ 已成功收藏！請點右上角頭像查看私房名單',
           'fa-heart', 
-          '直接查看私房清單', 
+          currentLang === 'en' ? 'View Wishlist' : '直接查看私房清單',
           () => {
             closeAiChat();
             openAuthModal();
@@ -4508,22 +4535,22 @@ async function handlePhotoSelection(files) {
         const uaCheck = navigator.userAgent || navigator.vendor || window.opera;
         const isInAppEnv = /Line|FBAN|FBAV|Instagram|MicroMessenger|musical_ly|Snapchat|WhatsApp|Twitter|; ?wv\)/i.test(uaCheck);
         if (isInAppEnv) {
-          showToast('Google 登入不支援在 App 內嵌瀏覽器中操作。請點擊右上角「⋯」選擇「在 Safari / Chrome 中開啟」後再進行登入。', 'fa-triangle-exclamation');
+          showToast(currentLang === 'en' ? 'To sign in with Google, tap ⋯ and open this page in Safari or Chrome.' : 'Google 登入不支援在 App 內嵌瀏覽器中操作。請點擊右上角「⋯」選擇「在 Safari / Chrome 中開啟」後再進行登入。', 'fa-triangle-exclamation');
           return;
         }
         try {
-          btnGoogle.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>登入中...</span>';
+          btnGoogle.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>${currentLang === 'en' ? 'Signing in...' : '登入中...'}</span>`;
           await loginWithGoogle();
           updateHeaderAuthBtn();
           updateUserModalView();
-          showToast('🎉 歡迎回來！已成功登入會員', 'fa-check');
+          showToast(currentLang === 'en' ? '🎉 Welcome back! You’re signed in.' : '🎉 歡迎回來！已成功登入會員', 'fa-check');
         } catch (err) {
           console.error("[Auth] 登入異常:", err);
-          showToast('登入取消或失敗，請再試一次', 'fa-triangle-exclamation');
+          showToast(currentLang === 'en' ? 'Sign-in cancelled or failed. Try again.' : '登入取消或失敗，請再試一次', 'fa-triangle-exclamation');
         } finally {
           btnGoogle.innerHTML = `
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-4 h-4" alt="Google">
-            <span data-i18n="btnGoogleLogin">使用 Google 帳號一鍵登入</span>
+            <span data-i18n="btnGoogleLogin">${I18N_DICT[currentLang].btnGoogleLogin}</span>
           `;
         }
       };
@@ -4537,17 +4564,17 @@ async function handlePhotoSelection(files) {
         e.stopPropagation();
         const email = magicInput.value.trim();
         if (!email) {
-          showToast('請先輸入電子信箱！', 'fa-circle-exclamation');
+          showToast(currentLang === 'en' ? 'Enter your email first!' : '請先輸入電子信箱！', 'fa-circle-exclamation');
           return;
         }
         try {
-          btnMagic.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 發送中...';
+          btnMagic.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${currentLang === 'en' ? 'Sending...' : '發送中...'}`;
           await sendMagicEmailLink(email);
-          showToast('✨ 魔法登入信已發送，請至信箱點擊連結！', 'fa-paper-plane');
+          showToast(currentLang === 'en' ? '✨ Check your email for the sign-in link!' : '✨ 魔法登入信已發送，請至信箱點擊連結！', 'fa-paper-plane');
         } catch (err) {
-          showToast('發送失敗，請確認信箱格式', 'fa-triangle-exclamation');
+          showToast(currentLang === 'en' ? 'Could not send. Check your email address.' : '發送失敗，請確認信箱格式', 'fa-triangle-exclamation');
         } finally {
-          btnMagic.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles text-slate-950"></i> <span>發送魔法登入連結</span>';
+          btnMagic.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles text-slate-950"></i> <span data-i18n="btnMagicEmail">${I18N_DICT[currentLang].btnMagicEmail}</span>`;
         }
       };
     }
@@ -4556,7 +4583,7 @@ async function handlePhotoSelection(files) {
       await logoutUser();
       authModal.classList.add('hidden');
       updateHeaderAuthBtn();
-      showToast('已安全登出帳號', 'fa-right-from-bracket');
+      showToast(currentLang === 'en' ? 'Signed out safely' : '已安全登出帳號', 'fa-right-from-bracket');
     });
 
     document.getElementById('btn-open-tasks-subview').addEventListener('click', () => {
@@ -4571,9 +4598,9 @@ async function handlePhotoSelection(files) {
     document.getElementById('task-card-comment').addEventListener('click', () => {
       if (!currentUser) {
         showToast(
-          '🔒 請先登入會員，即可發表真實點評賺取 20 積分！',
+          currentLang === 'en' ? '🔒 Sign in to review spots and earn 20 points!' : '🔒 請先登入會員，即可發表真實點評賺取 20 積分！',
           'fa-lock',
-          '立即登入',
+          currentLang === 'en' ? 'Sign In' : '立即登入',
           () => {
             closeAiChat();
             openAuthModal();
@@ -4582,9 +4609,9 @@ async function handlePhotoSelection(files) {
         return;
       }
       showToast(
-        '💡 探店評論為常態活動：在首頁任何店家卡片下方點擊「寫評論 +20」即可累積積分！',
+        currentLang === 'en' ? '💡 Tap “Review +20” on any spot to earn points!' : '💡 探店評論為常態活動：在首頁任何店家卡片下方點擊「寫評論 +20」即可累積積分！',
         'fa-pen-to-square',
-        '前往探索店家',
+        currentLang === 'en' ? 'Explore Spots' : '前往探索店家',
         () => {
           closeAuthModal();
           window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -4612,7 +4639,7 @@ async function handlePhotoSelection(files) {
       if (!currentUser) {
         recModal.classList.add('hidden');
         openAuthModal();
-        showToast('請先登入會員再推薦好店！', 'fa-lock');
+        showToast(currentLang === 'en' ? 'Sign in to recommend a spot!' : '請先登入會員再推薦好店！', 'fa-lock');
         return;
       }
       const city = document.getElementById('rec-city').value;
@@ -4620,12 +4647,12 @@ async function handlePhotoSelection(files) {
       const reason = recReason.value.trim();
 
       if (!store || !reason) {
-        showToast('請完整填寫店家名稱與推薦原因！', 'fa-circle-exclamation');
+        showToast(currentLang === 'en' ? 'Enter a spot name and your reason!' : '請完整填寫店家名稱與推薦原因！', 'fa-circle-exclamation');
         return;
       }
 
       btnSubmitRecommend.disabled = true;
-      btnSubmitRecommend.innerText = '提交中...';
+      btnSubmitRecommend.innerText = currentLang === 'en' ? 'Submitting...' : '提交中...';
 
       try {
         await addDoc(collection(db, "user_recommendations"), {
@@ -4644,12 +4671,12 @@ async function handlePhotoSelection(files) {
         authModal.classList.remove('hidden');
         document.getElementById('auth-modal-user-view').classList.add('hidden');
         document.getElementById('auth-modal-tasks-view').classList.remove('hidden');
-        showToast('🎉 推薦成功！審核通過入庫後將為您派發 100 積分！', 'fa-gift');
+        showToast(currentLang === 'en' ? '🎉 Recommendation sent! Earn 100 points once approved.' : '🎉 推薦成功！審核通過入庫後將為您派發 100 積分！', 'fa-gift');
       } catch (err) {
-        showToast('提交失敗，請稍後再試');
+        showToast(currentLang === 'en' ? 'Submission failed. Try again later.' : '提交失敗，請稍後再試');
       } finally {
         btnSubmitRecommend.disabled = false;
-        btnSubmitRecommend.innerText = '確認送出 (+100 PTS 審核)';
+        btnSubmitRecommend.innerText = I18N_DICT[currentLang].btnSubmitRec;
       }
     }
     btnSubmitRecommend.addEventListener('click', submitRecommendStore);
@@ -5592,9 +5619,9 @@ const arbitration = detectQueryTargetCity(msg);
 
     document.getElementById('share-btn').addEventListener('click', () => {
       if (navigator.share) {
-        navigator.share({ title: '大V的旅遊窩', url: window.location.href }).catch(() => {});
+        navigator.share({ title: currentLang === 'en' ? I18N_DICT[currentLang].appTitle : '大V的旅遊窩', url: window.location.href }).catch(() => {});
       } else {
-        navigator.clipboard.writeText(window.location.href).then(() => showToast('網站連結已複製！'));
+        navigator.clipboard.writeText(window.location.href).then(() => showToast(currentLang === 'en' ? 'Link copied!' : '網站連結已複製！'));
       }
     });
 
@@ -5645,7 +5672,7 @@ const arbitration = detectQueryTargetCity(msg);
 
     window.markAllNotificationsRead = function() {
       window.clearNotificationBadges();
-      showToast('📬 所有訊息已標記為已讀', 'fa-envelope-open');
+      showToast(currentLang === 'en' ? '📬 All messages marked as read' : '📬 所有訊息已標記為已讀', 'fa-envelope-open');
     };
 
     let currentInboxList = [];
@@ -5722,8 +5749,8 @@ const arbitration = detectQueryTargetCity(msg);
         container.innerHTML = `
           <div class="text-center py-8 text-slate-500">
             <i class="fa-regular fa-envelope-open text-2xl mb-1.5 text-slate-600 block"></i>
-            <span class="text-[11px] font-bold">信箱空空如也</span>
-            <p class="text-[9px] text-slate-500 mt-0.5">有最新好店探索或優惠時將第一時間送達！</p>
+            <span class="text-[11px] font-bold">${currentLang === 'en' ? 'Inbox is empty' : '信箱空空如也'}</span>
+            <p class="text-[9px] text-slate-500 mt-0.5">${currentLang === 'en' ? 'New spots and deals will arrive here!' : '有最新好店探索或優惠時將第一時間送達！'}</p>
           </div>
         `;
         return;
@@ -5734,11 +5761,11 @@ const arbitration = detectQueryTargetCity(msg);
         const timeStr = new Date(m.timestamp).toLocaleDateString();
         const hasTarget = !!m.targetId;
 
-        let badgeTag = '<span class="font-bold" style="color: var(--theme-primary);">🌟 每週探索</span>';
+        let badgeTag = `<span class="font-bold" style="color: var(--theme-primary);">${currentLang === 'en' ? '🌟 Weekly Picks' : '🌟 每週探索'}</span>`;
         if (m.type === 'offer') {
-          badgeTag = '<span class="text-rose-400 font-bold">🔥 限時特惠</span>';
+          badgeTag = `<span class="text-rose-400 font-bold">${currentLang === 'en' ? '🔥 Limited Deals' : '🔥 限時特惠'}</span>`;
         } else if (m.type === 'penalty' || !m.isGlobal) {
-          badgeTag = '<span class="font-bold" style="color: var(--theme-primary);">⚠️ 系統通知</span>';
+          badgeTag = `<span class="font-bold" style="color: var(--theme-primary);">${currentLang === 'en' ? '⚠️ System Notice' : '⚠️ 系統通知'}</span>`;
         }
 
         return `
@@ -5752,9 +5779,9 @@ const arbitration = detectQueryTargetCity(msg);
               </div>
               <span class="text-[9px] text-slate-500">${timeStr}</span>
             </div>
-            <h6 class="font-bold text-xs leading-tight" style="color: var(--theme-text-title);">${m.title || '最新動態'}</h6>
+            <h6 class="font-bold text-xs leading-tight" style="color: var(--theme-text-title);">${m.title || (currentLang === 'en' ? 'Latest Updates' : '最新動態')}</h6>
             <p class="text-[10px] leading-relaxed" style="color: var(--theme-text-body);">${m.content || ''}</p>
-            ${hasTarget ? '<span class="text-[9px] font-bold flex items-center gap-0.5 pt-0.5" style="color: var(--theme-primary);">點擊前往查看店家 ➔</span>' : ''}
+            ${hasTarget ? `<span class="text-[9px] font-bold flex items-center gap-0.5 pt-0.5" style="color: var(--theme-primary);">${currentLang === 'en' ? 'View Spot ➔' : '點擊前往查看店家 ➔'}</span>` : ''}
           </div>
         `;
       }).join('');
@@ -5811,7 +5838,7 @@ const arbitration = detectQueryTargetCity(msg);
       localStorage.setItem('applied_pwa_version', APP_VERSION);
     }
 
-    btnApply.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 正在更新套用中...';
+    btnApply.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${currentLang === 'en' ? 'Updating...' : '正在更新套用中...'}`;
     btnApply.style.pointerEvents = 'none';
     modal.classList.add('hidden');
 
@@ -5849,7 +5876,7 @@ const arbitration = detectQueryTargetCity(msg);
       }
 
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=20261001-v51.2').then((reg) => {
+        navigator.serviceWorker.register('./sw.js?v=20261001-v51.3').then((reg) => {
           if (reg.waiting) {
             showPwaUpdateModal(reg.waiting);
           }
