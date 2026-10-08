@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <meta name="app-version" content="20261001-v51.4" />
+  <meta name="app-version" content="20261008-v51.5" />
   <meta name="theme-color" content="#020617" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -1073,7 +1073,7 @@
               <i id="user-avatar-icon" class="fa-regular fa-user text-[10px]"></i>
               <span id="user-avatar-badge" class="avatar-badge hidden"></span>
             </span>
-            <span id="auth-btn-text">登入</span>
+            <span id="auth-btn-text" data-i18n="btnLogin">Sign In</span>
           </button>
           <button id="share-btn" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center justify-center transition active:scale-95 shadow-sm">
             <i class="fa-solid fa-share-nodes text-[11px]"></i>
@@ -1091,8 +1091,8 @@
         </div>
         
         <div class="lang-toggle-container p-0.5 rounded-xl flex items-center flex-shrink-0 transition-all">
-          <button type="button" id="lang-btn-zh" class="lang-toggle-btn active px-2.5 py-1.5 text-[11px] font-black rounded-lg transition-all">中文</button>
-          <button type="button" id="lang-btn-en" class="lang-toggle-btn px-2.5 py-1.5 text-[11px] font-black rounded-lg transition-all">EN</button>
+          <button type="button" id="lang-btn-zh" class="lang-toggle-btn px-2.5 py-1.5 text-[11px] font-black rounded-lg transition-all">中文</button>
+          <button type="button" id="lang-btn-en" class="lang-toggle-btn active px-2.5 py-1.5 text-[11px] font-black rounded-lg transition-all">EN</button>
         </div>
       </div>
 
@@ -1140,7 +1140,7 @@
     <div class="flex justify-between items-center mb-3 px-0.5 text-xs text-slate-400 font-medium">
       <span id="currentFilterSummary" class="flex items-center gap-1">
         <i class="fa-solid fa-location-dot text-amber-400"></i>
-        <span id="filterSummaryText">載入中...</span>
+        <span id="filterSummaryText" data-i18n="loadingSummary">Loading...</span>
       </span>
       <span id="itemCountBadge" class="bg-slate-950 border border-slate-800 text-amber-400 px-2 py-0.5 rounded-full text-[11px] font-mono font-bold">0</span>
     </div>
@@ -1148,7 +1148,7 @@
     <div id="section-map" class="tab-panel flex flex-col gap-4">
       <div id="loading" class="text-center py-12 text-slate-500 text-xs">
         <i class="fa-solid fa-spinner fa-spin text-amber-400 text-base mb-2 block"></i>
-        載入頂級美饌與嚴選清單中...
+        <span data-i18n="loadingPlaces">Loading curated places...</span>
       </div>
       <div id="restaurant-list" class="flex flex-col gap-4"></div>
     </div>
@@ -1645,6 +1645,8 @@
         appTitle: '大V的旅遊窩',
         appSubtitle: '菲律賓精緻生活 & 海島漫遊地圖',
         btnLogin: '登入',
+        loadingSummary: '載入中...',
+        loadingPlaces: '載入頂級美饌與嚴選清單中...',
         btnMember: '會員',
         searchPlaceholder: '搜尋和牛、海鮮、夜生活、Villa、急診...',
         shareBtn: '分享',
@@ -1761,6 +1763,8 @@
         appTitle: "BigV's Getaway Nest",
         appSubtitle: 'Philippine Premium Travel Guide',
         btnLogin: 'Sign In',
+        loadingSummary: 'Loading...',
+        loadingPlaces: 'Loading curated places...',
         btnMember: 'Member',
         searchPlaceholder: 'Search Wagyu, Seafood, Nightlife, Villa, Medical...',
         shareBtn: 'Share',
@@ -2053,12 +2057,6 @@
         const k = el.getAttribute('data-i18n-placeholder');
         if (dict[k]) el.placeholder = dict[k];
       });
-    }
-
-    function applyLanguage(lang) {
-      currentLang = (lang === 'en') ? 'en' : 'zh-TW';
-      localStorage.setItem('ph_app_lang', currentLang);
-      applyLanguageText();
 
       const btnZh = document.getElementById('lang-btn-zh');
       const btnEn = document.getElementById('lang-btn-en');
@@ -2071,6 +2069,12 @@
           btnZh.classList.remove('active');
         }
       }
+    }
+
+    function applyLanguage(lang) {
+      currentLang = (lang === 'en') ? 'en' : 'zh-TW';
+      localStorage.setItem('ph_app_lang', currentLang);
+      applyLanguageText();
 
       updateHeaderAuthBtn();
       renderRegionPills();
@@ -5880,7 +5884,7 @@ const arbitration = detectQueryTargetCity(msg);
       }
 
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=20261001-v51.4').then((reg) => {
+        navigator.serviceWorker.register('./sw.js?v=20261008-v51.5').then((reg) => {
           if (reg.waiting) {
             showPwaUpdateModal(reg.waiting);
           }
