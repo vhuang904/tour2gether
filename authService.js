@@ -19,6 +19,7 @@ import {
   getFirestore, 
   doc, 
   getDoc, 
+  getDocFromServer,
   setDoc, 
   updateDoc, 
   collection, 
@@ -215,6 +216,38 @@ export async function logoutUser() {
 
 export function getCurrentProfile() {
   return currentUserProfile;
+}
+
+/**
+ * users/{uid}: emailDigestEnabled (boolean), emailDigestPreferenceUpdatedAt (timestamp).
+ * Missing preference defaults to on only after a successful server read.
+ * A default is not consent: reads never write enrollment or consent records.
+ * These helpers do not send email or change browser push subscriptions.
+ */
+export async function getEmailDigestPreference(expectedUid) {
+  const user = auth.currentUser;
+  if (!user) throw new Error("Sign in to read email preferences.");
+  if (user.uid !== expectedUid) throw new Error("The signed-in account has changed.");
+  const snapshot = await getDocFromServer(doc(db, "users", user.uid));
+  if (!snapshot.exists()) throw new Error("Member profile is unavailable.");
+  const enabled = snapshot.data().emailDigestEnabled;
+  if (enabled !== undefined && typeof enabled !== "boolean") {
+    throw new Error("Invalid email preference.");
+  }
+  return { enabled: enabled === undefined ? true : enabled, isDefault: enabled === undefined };
+}
+
+export async function setEmailDigestPreference(enabled, expectedUid) {
+  const user = auth.currentUser;
+  if (!user) throw new Error("Sign in to update email preferences.");
+  if (user.uid !== expectedUid) throw new Error("The signed-in account has changed.");
+  if (typeof enabled !== "boolean") throw new Error("Email preference must be a boolean.");
+  if (!navigator.onLine) throw new Error("An internet connection is required to save email preferences.");
+  await updateDoc(doc(db, "users", user.uid), {
+    emailDigestEnabled: enabled,
+    emailDigestPreferenceUpdatedAt: serverTimestamp()
+  });
+  return { enabled, isDefault: false };
 }
 
 export async function getStoreComments(storeId) {

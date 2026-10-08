@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <meta name="app-version" content="20261008-v51.5" />
+  <meta name="app-version" content="20261008-v51.6" />
   <meta name="theme-color" content="#020617" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -1198,7 +1198,7 @@
       </div>
 
       <!-- 登入後會員視窗 -->
-      <div id="auth-modal-user-view" class="hidden text-left flex flex-col flex-1 overflow-hidden space-y-3">
+      <div id="auth-modal-user-view" class="hidden text-left flex flex-col flex-1 overflow-y-auto space-y-3">
         
         <!-- 頂部列：身分 + 風格選單與關閉 -->
         <div class="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
@@ -1272,8 +1272,25 @@
           </button>
         </div>
 
+        <div id="email-digest-settings" class="rounded-xl border border-slate-700 bg-slate-900 p-2.5 flex-shrink-0" style="border-color: var(--theme-border)">
+          <div class="flex items-center justify-between gap-3">
+            <h5 id="email-digest-label" data-i18n="emailDigestLabel" class="text-xs font-bold text-white">Restaurant &amp; offer emails</h5>
+            <button id="email-digest-toggle" type="button" role="switch" aria-checked="false" aria-labelledby="email-digest-label" aria-describedby="email-digest-description email-digest-status" disabled class="flex-shrink-0 inline-flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-400 disabled:cursor-wait disabled:opacity-50">
+              <span id="email-digest-track" class="inline-flex items-center h-5 w-9 rounded-full bg-slate-700">
+                <span id="email-digest-thumb" class="block h-4 w-4 ml-0.5 rounded-full bg-slate-300 transition-transform"></span>
+              </span>
+            </button>
+          </div>
+          <p id="email-digest-description" data-i18n="emailDigestDescription" class="text-[10px] leading-relaxed text-slate-300">BigV's picks, offers and new restaurants. Planned: Mon &amp; Fri, up to 10 items per email.</p>
+          <p data-i18n="emailDigestNotLive" class="text-[10px] leading-relaxed text-slate-400">Member emails are not live yet. This saves your preference only.</p>
+          <div class="flex items-center justify-between gap-2">
+            <p id="email-digest-status" role="status" aria-live="polite" class="text-[10px] leading-relaxed text-slate-300"></p>
+            <button id="email-digest-retry" type="button" data-i18n="emailDigestRetry" class="hidden flex-shrink-0 min-h-[44px] px-2 text-xs text-amber-300 underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-400" style="color: var(--theme-primary-text)">Retry</button>
+          </div>
+        </div>
+
         <!-- 私房口袋收藏 & 站內信箱 雙 Tab 區塊 -->
-        <div id="user-favorites-box" class="flex-1 flex flex-col min-h-0 border-t border-slate-800/80 pt-1 p-2 rounded-2xl transition-colors">
+        <div id="user-favorites-box" class="flex-none flex flex-col border-t border-slate-800/80 pt-1 p-2 rounded-2xl transition-colors">
           
           <div class="profile-tabs-header">
             <button type="button" id="tab-btn-favorites" class="profile-tab-btn active" onclick="window.switchProfileTab('favorites')">
@@ -1621,7 +1638,9 @@
       loginWithGoogle, 
       sendMagicEmailLink, 
       logoutUser, 
-      addStoreComment 
+      addStoreComment,
+      getEmailDigestPreference,
+      setEmailDigestPreference
     } from './authService.js';
 
     const firebaseConfig = {
@@ -1701,6 +1720,20 @@
         city_siargao: '錫亞高島',
         city_samal: '薩馬爾島',
         labelAlerts: '推播',
+        emailDigestLabel: '餐廳推薦與優惠郵件',
+        emailDigestDescription: '大V推薦、特殊優惠與新餐廳。預計週一、週五寄送，每封最多 10 筆。',
+        emailDigestNotLive: '正式會員寄信尚未啟用，目前只儲存你的偏好。',
+        emailDigestLoading: '正在讀取郵件設定…',
+        emailDigestSaving: '正在儲存，請保持網路連線…',
+        emailDigestDefaultOn: '預設開啟，可隨時關閉。',
+        emailDigestOn: '收信偏好：開啟',
+        emailDigestOff: '收信偏好：關閉',
+        emailDigestLoadError: '無法讀取郵件設定，請連線後重試。',
+        emailDigestSaveError: '未能確認儲存成功，請重試讀取最新設定。',
+        emailDigestRetry: '重試',
+        emailDigestSignIn: '請登入後設定郵件通知。',
+        emailDigestSavedOn: '已儲存：接收餐廳與優惠郵件',
+        emailDigestSavedOff: '已儲存：不接收餐廳與優惠郵件',
         btnTasksAndMeetup: '特殊任務 & 揪團 ➔',
         myFavorites: '我的私房口袋清單',
         btnLogout: '登出帳號',
@@ -1827,6 +1860,20 @@
         city_siargao: 'Siargao',
         city_samal: 'Samal',
         labelAlerts: 'Alerts',
+        emailDigestLabel: 'Restaurant & offer emails',
+        emailDigestDescription: "BigV's picks, offers and new restaurants. Planned: Mon & Fri, up to 10 items per email.",
+        emailDigestNotLive: 'Member emails are not live yet. This saves your preference only.',
+        emailDigestLoading: 'Loading email preferences…',
+        emailDigestSaving: 'Saving. Please stay connected…',
+        emailDigestDefaultOn: 'On by default. You can turn it off anytime.',
+        emailDigestOn: 'Email preference: on',
+        emailDigestOff: 'Email preference: off',
+        emailDigestLoadError: 'Could not load email preferences. Connect and retry.',
+        emailDigestSaveError: 'Could not confirm the save. Retry to load the latest preference.',
+        emailDigestRetry: 'Retry',
+        emailDigestSignIn: 'Sign in to manage email preferences.',
+        emailDigestSavedOn: 'Saved: receive restaurant and offer emails',
+        emailDigestSavedOff: 'Saved: do not receive restaurant and offer emails',
         btnTasksAndMeetup: 'Quests & Events ➔',
         myFavorites: 'My Spot',
         btnLogout: 'Log Out',
@@ -2106,6 +2153,72 @@
     const pushToggleBtn = document.getElementById('push-toggle-btn');
     const pushToggleThumb = document.getElementById('push-toggle-thumb');
 
+    const emailDigestToggle = document.getElementById('email-digest-toggle');
+    const emailDigestRetry = document.getElementById('email-digest-retry');
+    let emailDigestRequest = 0;
+    let emailDigestState = { uid: null, enabled: null, isDefault: false, status: 'idle' };
+
+    function renderEmailDigestPreference() {
+      const dict = I18N_DICT[currentLang];
+      const enabled = emailDigestState.enabled === true;
+      const ready = emailDigestState.uid === currentUser?.uid && emailDigestState.status === 'ready';
+      emailDigestToggle.disabled = !ready;
+      emailDigestToggle.setAttribute('aria-checked', String(enabled));
+      emailDigestToggle.setAttribute('aria-busy', String(['loading', 'saving'].includes(emailDigestState.status)));
+      const track = document.getElementById('email-digest-track');
+      track.classList.toggle('bg-amber-400', enabled);
+      track.classList.toggle('bg-slate-700', !enabled);
+      document.getElementById('email-digest-thumb').classList.toggle('translate-x-4', enabled);
+      const keys = {
+        idle: 'emailDigestSignIn', loading: 'emailDigestLoading', saving: 'emailDigestSaving',
+        loadError: 'emailDigestLoadError', saveError: 'emailDigestSaveError'
+      };
+      const statusKey = keys[emailDigestState.status] ||
+        (emailDigestState.isDefault ? 'emailDigestDefaultOn' : enabled ? 'emailDigestOn' : 'emailDigestOff');
+      document.getElementById('email-digest-status').textContent = dict[statusKey];
+      emailDigestRetry.classList.toggle('hidden', !currentUser || !['loadError', 'saveError'].includes(emailDigestState.status));
+    }
+
+    async function loadEmailDigestPreference() {
+      if (emailDigestState.status === 'saving' && emailDigestState.uid === currentUser?.uid) return;
+      const uid = currentUser?.uid || null;
+      const request = ++emailDigestRequest;
+      emailDigestState = { uid, enabled: null, isDefault: false, status: uid ? 'loading' : 'idle' };
+      renderEmailDigestPreference();
+      if (!uid) return;
+      try {
+        const preference = await getEmailDigestPreference(uid);
+        if (request !== emailDigestRequest || currentUser?.uid !== uid) return;
+        emailDigestState = { uid, ...preference, status: 'ready' };
+      } catch (error) {
+        console.error('[Email preferences] Read failed:', error);
+        if (request !== emailDigestRequest || currentUser?.uid !== uid) return;
+        emailDigestState.status = 'loadError';
+      }
+      renderEmailDigestPreference();
+    }
+
+    emailDigestRetry.addEventListener('click', loadEmailDigestPreference);
+    emailDigestToggle.addEventListener('click', async () => {
+      if (!currentUser || emailDigestState.uid !== currentUser.uid || emailDigestState.status !== 'ready') return;
+      const uid = currentUser.uid;
+      const request = ++emailDigestRequest;
+      const enabled = !emailDigestState.enabled;
+      emailDigestState.status = 'saving';
+      renderEmailDigestPreference();
+      try {
+        const preference = await setEmailDigestPreference(enabled, uid);
+        if (request !== emailDigestRequest || currentUser?.uid !== uid) return;
+        emailDigestState = { uid, ...preference, status: 'ready' };
+        showToast(I18N_DICT[currentLang][enabled ? 'emailDigestSavedOn' : 'emailDigestSavedOff'], 'fa-envelope');
+      } catch (error) {
+        console.error('[Email preferences] Save failed:', error);
+        if (request !== emailDigestRequest || currentUser?.uid !== uid) return;
+        emailDigestState.status = 'saveError';
+      }
+      renderEmailDigestPreference();
+    });
+
     function updatePushToggleUI(isActive) {
       if (!pushToggleBtn || !pushToggleThumb) return;
       pushToggleBtn.setAttribute('aria-checked', isActive ? 'true' : 'false');
@@ -2352,6 +2465,7 @@
       const { user, profile, isLoggedIn } = e.detail;
       currentUser = user;
       currentUserProfile = profile || { points: 50, level: 'LV.1 探店初心者' };
+      if (emailDigestState.uid !== (user?.uid || null)) loadEmailDigestPreference();
 
       if (isLoggedIn && user) {
         requestPushNotificationPermission(user);
@@ -2371,6 +2485,7 @@
     });
 
     function updateUserModalView() {
+      renderEmailDigestPreference();
       if (!currentUser) {
         document.getElementById('auth-modal-login-view').classList.remove('hidden');
         document.getElementById('auth-modal-user-view').classList.add('hidden');
@@ -2650,7 +2765,7 @@
       const matchedItems = favIds.map(id => allItems.find(x => String(x.id || x.place_id).trim().toLowerCase() === String(id).trim().toLowerCase())).filter(Boolean);
 
       container.innerHTML = matchedItems.map(item => {
-        const name = item.name_zh || item.name_en || item.name || item.id;
+        const name = (currentLang === 'en' && item.name_en) ? item.name_en : (item.name_zh || item.name_en || item.name || item.id);
         const img = (item.images && item.images[0]) || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=200';
         const cleanPhone = getCleanPhone(item.phone);
         const navUrl = item.nav_link || ('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(name + ' ' + (item.address || '')));
@@ -4507,6 +4622,7 @@ async function handlePhotoSelection(files) {
     function openAuthModal() {
       closeAiChat();
       updateUserModalView();
+      loadEmailDigestPreference();
       authModal.classList.remove('hidden');
     }
 
@@ -5884,7 +6000,7 @@ const arbitration = detectQueryTargetCity(msg);
       }
 
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=20261008-v51.5').then((reg) => {
+        navigator.serviceWorker.register('./sw.js?v=20261008-v51.6').then((reg) => {
           if (reg.waiting) {
             showPwaUpdateModal(reg.waiting);
           }
