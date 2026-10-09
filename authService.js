@@ -1,4 +1,4 @@
-// authService.js - 大V的旅遊窩 PWA 認證模組（全平台跨網域防阻擋高相容版 + Storage 圖片支援）
+// authService.js - Tour2gether PWA 認證模組（全平台跨網域防阻擋高相容版 + Storage 圖片支援）
 
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { 
@@ -63,6 +63,10 @@ googleProvider.setCustomParameters({});
 
 let currentUserProfile = null;
 
+function getAuthLanguage() {
+  return document.documentElement.lang === 'zh-TW' ? 'zh-TW' : 'en';
+}
+
 export function calculateUserLevel(points = 0) {
   if (points >= 500) return "LV.5 終極米其林老饕";
   if (points >= 300) return "LV.4 尋味美食家";
@@ -100,7 +104,7 @@ export async function fetchOrCreateUserProfile(user) {
       const data = docSnap.data();
       currentUserProfile = {
         uid: user.uid,
-        displayName: data.displayName || user.displayName || "吃貨食客",
+        displayName: data.displayName || user.displayName || "",
         photoURL: data.photoURL || user.photoURL || "",
         email: userEmail,
         points: typeof data.points === "number" ? data.points : 50,
@@ -125,7 +129,7 @@ export async function fetchOrCreateUserProfile(user) {
       }
 
       const newProfile = {
-        displayName: user.displayName || "吃貨食客",
+        displayName: user.displayName || "",
         photoURL: user.photoURL || "",
         email: userEmail,
         points: inheritedPoints,
@@ -147,7 +151,7 @@ export async function fetchOrCreateUserProfile(user) {
     console.error("[AuthService] 讀取/建立會員資料失敗:", error);
     currentUserProfile = {
       uid: user.uid,
-      displayName: user.displayName || "吃貨食客",
+      displayName: user.displayName || "",
       photoURL: user.photoURL || "",
       email: userEmail,
       points: 50,
@@ -160,6 +164,7 @@ export async function fetchOrCreateUserProfile(user) {
 
 // 1. Google 登入
 export async function loginWithGoogle() {
+  auth.languageCode = getAuthLanguage();
   try {
     const result = await signInWithPopup(auth, googleProvider);
     if (result && result.user) {
@@ -191,8 +196,10 @@ export async function sendMagicEmailLink(email) {
     throw new Error("請輸入正確的電子郵件信箱。");
   }
 
+  const lang = getAuthLanguage();
+  auth.languageCode = lang;
   const actionCodeSettings = {
-    url: window.location.origin + window.location.pathname,
+    url: window.location.origin + window.location.pathname + '?lang=' + lang,
     handleCodeInApp: true
   };
 
@@ -264,14 +271,14 @@ export async function getStoreComments(storeId) {
     return list;
   } catch (err) {
     console.error("[authService] getStoreComments 失敗:", err);
-    return [];
+    throw err;
   }
 }
 
 // ⭐ 新增：上傳單張已壓縮照片到 Firebase Storage
 export async function uploadCommentPhoto(storeId, fileBlob) {
   const currentUser = auth.currentUser;
-  if (!currentUser) throw new Error("請先登入後再上傳照片。");
+  if (!currentUser) throw Object.assign(new Error("請先登入後再上傳照片。"), { code: "comment/sign-in-required" });
 
   const timestamp = Date.now();
   const randomStr = Math.random().toString(36).substring(2, 8);
@@ -287,18 +294,18 @@ export async function uploadCommentPhoto(storeId, fileBlob) {
 export async function addStoreComment(storeId, commentPayload, photos = []) {
   const currentUser = auth.currentUser;
   if (!currentUser) {
-    throw new Error("請先登入後再發表探店評價。");
+    throw Object.assign(new Error("請先登入後再發表探店評價。"), { code: "comment/sign-in-required" });
   }
 
   if (!storeId) {
-    throw new Error("店家代碼無效。");
+    throw Object.assign(new Error("店家代碼無效。"), { code: "comment/invalid-place" });
   }
 
   const cleanComment = (typeof commentPayload === 'string' ? commentPayload : (commentPayload?.comment || "")).trim();
   const photoList = Array.isArray(commentPayload?.photos) ? commentPayload.photos : (Array.isArray(photos) ? photos : []);
 
   if (!cleanComment && photoList.length === 0) {
-    throw new Error("請填寫評價內容或上傳照片。");
+    throw Object.assign(new Error("請填寫評價內容或上傳照片。"), { code: "comment/empty" });
   }
 
   const rating = Number(commentPayload?.rating) || 5;
@@ -313,7 +320,7 @@ export async function addStoreComment(storeId, commentPayload, photos = []) {
     targetId: String(storeId),
     userId: currentUser.uid,
     userEmail: currentUser.email || "",
-    userName: currentUserProfile?.displayName || currentUser.displayName || "匿名老饕",
+    userName: currentUserProfile?.displayName || currentUser.displayName || "Member",
     userPhoto: currentUserProfile?.photoURL || currentUser.photoURL || "",
     rating: rating,
     comment: cleanComment,
@@ -382,10 +389,13 @@ export async function addStoreComment(storeId, commentPayload, photos = []) {
 
 // 5. 初始化認證監聽
 export function initAuthService() {
+  auth.languageCode = getAuthLanguage();
   if (isSignInWithEmailLink(auth, window.location.href)) {
     let email = window.localStorage.getItem("emailForSignIn");
     if (!email) {
-      email = window.prompt("請輸入登入時所使用的電子郵件信箱：");
+      email = window.prompt(getAuthLanguage() === 'en'
+        ? "Enter the email address you used to request this sign-in link:"
+        : "請輸入登入時所使用的電子郵件信箱：");
     }
     if (email) {
       signInWithEmailLink(auth, email, window.location.href)
@@ -394,7 +404,10 @@ export function initAuthService() {
           await fetchOrCreateUserProfile(result.user);
           window.history.replaceState({}, document.title, window.location.pathname);
         })
-        .catch((err) => console.error("[AuthService] Email 魔法登入驗證錯誤:", err));
+        .catch((err) => {
+          console.error("[AuthService] Email 魔法登入驗證錯誤:", err);
+          window.dispatchEvent(new CustomEvent('auth-sign-in-error', { detail: { method: 'email' } }));
+        });
     }
   }
 
@@ -407,6 +420,7 @@ export function initAuthService() {
     })
     .catch((error) => {
       console.warn("[AuthService] Redirect 狀態略過:", error.code);
+      window.dispatchEvent(new CustomEvent('auth-sign-in-error', { detail: { method: 'redirect' } }));
     });
 
   onAuthStateChanged(auth, async (user) => {

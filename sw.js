@@ -1,5 +1,5 @@
 /**
- * 大V的旅遊窩 PWA - Service Worker (版本自適應 & App Badging 紅點推播強化版)
+ * Tour2gether PWA - Service Worker (版本自適應 & App Badging 紅點推播強化版)
  * 1. 帶動態版本戳記，發布時自動清空舊版快取
  * 2. 核心頁面與腳本採用 Network First 網路優先策略
  * 3. 整合 App Badging API：背景推播送達亮紅點，點擊通知自動清除
@@ -7,9 +7,12 @@
  */
 
 // 👉 每次重大發布修改此版本號，強制手機客戶端熱更新
-const CACHE_VERSION = '20261008-v51.6';
+const CACHE_VERSION = '20261009-v51.7';
 const STATIC_CACHE_NAME = `bigv-static-${CACHE_VERSION}`;
 const IMAGE_CACHE_NAME = `bigv-images-${CACHE_VERSION}`;
+const PREFERENCES_CACHE_NAME = 'tour2gether-preferences';
+const LANGUAGE_CACHE_URL = new URL('__app_language__', self.registration.scope).href;
+let languageUpdate = Promise.resolve();
 
 // 核心離線必備靜態外殼
 const PRECACHE_ASSETS = [
@@ -39,7 +42,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName !== STATIC_CACHE_NAME && cacheName !== IMAGE_CACHE_NAME) {
+          if (cacheName !== STATIC_CACHE_NAME && cacheName !== IMAGE_CACHE_NAME && cacheName !== PREFERENCES_CACHE_NAME) {
             console.log(`[PWA SW] 清除過期快取: ${cacheName}`);
             return caches.delete(cacheName);
           }
@@ -142,6 +145,14 @@ self.addEventListener('fetch', (event) => {
 
 // 4. 監聽前端發來的指令（支援熱更新與主動清除紅點）
 self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SET_LANGUAGE' && ['en', 'zh-TW'].includes(event.data.lang)) {
+    const lang = event.data.lang;
+    languageUpdate = languageUpdate.then(async () => {
+      const cache = await caches.open(PREFERENCES_CACHE_NAME);
+      await cache.put(LANGUAGE_CACHE_URL, new Response(lang));
+    }).catch(err => console.warn('[Push] Unable to save notification language:', err));
+    event.waitUntil(languageUpdate);
+  }
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
@@ -157,6 +168,30 @@ self.addEventListener('message', (event) => {
 // ==========================================
 
 // 1. 監聽推播訊息 (背景接收)
+async function getPushLanguage() {
+  await languageUpdate;
+  try {
+    const cache = await caches.open(PREFERENCES_CACHE_NAME);
+    const saved = await cache.match(LANGUAGE_CACHE_URL);
+    return saved && await saved.text() === 'zh-TW' ? 'zh-TW' : 'en';
+  } catch (err) {
+    console.warn('[Push] Unable to read notification language; using English:', err);
+    return 'en';
+  }
+}
+
+function getPushText(data, field, lang) {
+  const shortLang = lang === 'en' ? 'en' : 'zh';
+  const sources = [data.notification, data.data, data];
+  const keys = [`${field}_${shortLang}`, `${field}_${lang}`, field, `${field}_${shortLang === 'en' ? 'zh' : 'en'}`];
+  for (const key of keys) {
+    for (const source of sources) {
+      if (typeof source?.[key] === 'string' && source[key].trim()) return source[key].trim();
+    }
+  }
+  return '';
+}
+
 self.addEventListener('push', (event) => {
   let data = {};
   if (event.data) {
@@ -165,16 +200,20 @@ self.addEventListener('push', (event) => {
     } catch (e) {
       data = {
         notification: {
-          title: '大V的旅遊窩',
+          title: 'Tour2gether',
           body: event.data.text()
         }
       };
     }
   }
 
-  const notificationTitle = (data.notification && data.notification.title) || data.title || '大V的旅遊窩 精選通知';
+  if (!data || typeof data !== 'object') data = { body: String(data ?? '') };
+  const showNotificationPromise = getPushLanguage().then(lang => {
+  const notificationTitle = getPushText(data, 'title', lang) || 'Tour2gether';
   const notificationOptions = {
-    body: (data.notification && data.notification.body) || data.body || '有全新的菲律賓美食與特惠推薦！點此查看。',
+    body: getPushText(data, 'body', lang) || (lang === 'en'
+      ? 'Discover new dining spots and deals in the Philippines. Tap to explore.'
+      : '有全新的菲律賓美食與特惠推薦！點此查看。'),
     icon: (data.notification && data.notification.icon) || data.icon || './icons/icon-192.png',
     badge: './icons/icon-192.png',
     data: {
@@ -186,13 +225,13 @@ self.addEventListener('push', (event) => {
     requireInteraction: true, // ⭐ 強制常駐快顯 (Android Heads-up 關鍵)
     silent: false             // ⭐ 禁止靜音處理，確保觸發系統喚醒
   };
+  return self.registration.showNotification(notificationTitle, notificationOptions);
+  });
 
   // ⭐ 背景亮起桌面 App Icon 紅點徽章
   const badgePromise = ('setAppBadge' in navigator)
     ? navigator.setAppBadge(data.badgeCount || 1).catch(() => {})
     : Promise.resolve();
-
-  const showNotificationPromise = self.registration.showNotification(notificationTitle, notificationOptions);
 
   event.waitUntil(Promise.all([showNotificationPromise, badgePromise]));
 });

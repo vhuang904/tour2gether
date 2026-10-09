@@ -1,5 +1,5 @@
 /**
- * 大V的旅遊窩 PWA - Google Sheets CMS 資料串接服務 (v40.0 雙語摘要與 place_id 完整對齊版)
+ * Tour2gether PWA - Google Sheets CMS 資料串接服務 (v40.0 雙語摘要與 place_id 完整對齊版)
  * 1. 支援 place_id 唯一識別，保障 BigV 特約與自然收錄無縫去重覆蓋
  * 2. 完整映射 description (繁中) 與 description_en (原生英文)
  * 3. 延續 RFC 4180 強固 CSV 解析與嚴密 is_active 過濾機制

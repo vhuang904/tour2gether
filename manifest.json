@@ -1,6 +1,6 @@
 {
-  "name": "大V的旅遊窩",
-  "short_name": "大V旅遊窩",
+  "name": "Tour2gether",
+  "short_name": "Tour2gether",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#111111",
