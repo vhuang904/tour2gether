@@ -218,6 +218,7 @@ function normalizeBigVPicks(rows) {
       website: extractWebsite(row),
       image_url: row.imageurl || row.image || '',
       images: extractImages(row),
+      photoAttributions: row.photoattributionsjson || '',
       nav_link: row.navlink || row.nav_link || '',
       description: row.description || row.desc || row.desczh || '',
       description_en: row.descriptionen || row.descen || '',
@@ -252,6 +253,7 @@ function normalizeAttractions(rows) {
       website: extractWebsite(row),
       image_url: row.imageurl || row.image || '',
       images: extractImages(row),
+      photoAttributions: row.photoattributionsjson || '',
       nav_link: row.navlink || row.nav_link || '',
       is_active: checkIsActive(row)
     }));
@@ -279,6 +281,7 @@ function normalizePromotions(rows) {
       website: extractWebsite(row),
       image_url: row.imageurl || row.image || '',
       images: extractImages(row),
+      photoAttributions: row.photoattributionsjson || '',
       nav_link: row.navlink || row.nav_link || '',
       is_active: checkIsActive(row)
     }));
@@ -306,6 +309,7 @@ function normalizeAutoDiscovered(rows) {
       website: extractWebsite(row),
       image_url: row.imageurl || row.image || '',
       images: extractImages(row),
+      photoAttributions: row.photoattributionsjson || '',
       nav_link: row.navlink || row.nav_link || '',
       description: row.description || row.desc || row.desczh || '',
       description_en: row.descriptionen || row.descen || '',
@@ -335,6 +339,7 @@ function normalizeIslandDiscovered(rows) {
       website: extractWebsite(row),
       image_url: row.imageurl || row.image || '',
       images: extractImages(row),
+      photoAttributions: row.photoattributionsjson || '',
       nav_link: row.navlink || row.nav_link || '',
       description: row.description || row.desc || row.desczh || '',
       description_en: row.descriptionen || row.descen || '',
@@ -365,6 +370,7 @@ function normalizeMedical(rows) {
         website: extractWebsite(row),
         image_url: row.imageurl || row.image || '',
         images: extractImages(row),
+      photoAttributions: row.photoattributionsjson || '',
         nav_link: row.navlink || row.nav_link || '',
         description: row.description || row.desc || '',
         description_en: row.descriptionen || row.descen || '',
@@ -415,3 +421,4 @@ export function getLocalizedText(item, field, langCode = 'zh') {
   }
   return '';
 }
+
