@@ -3482,7 +3482,7 @@
       const innerCardHtml = `
         <article id="card-${sId}" class="rounded-2xl overflow-hidden ${tier === 2 ? 'partner-card-frame' : 'border border-slate-800'} bg-slate-950 shadow-md flex flex-col transition relative">
           <div class="relative w-full overflow-hidden">
-            ${buildCarouselHtml(parseImages(item), `res-${idx}`, name)}
+            ${buildCarouselHtml(parseImages(item), `res-${idx}`, name, item.photoAttributions)}
             ${badgeHtml}
 
             <button type="button" onclick="window.toggleFavorite('${sId}', event)" class="absolute top-3 right-3 z-30 w-8 h-8 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-sm transition active:scale-90 border border-white/20 cursor-pointer">
@@ -3704,7 +3704,7 @@
         const innerCardHtml = `
           <article id="card-${sId}" class="rounded-2xl overflow-hidden ${tier === 2 ? 'partner-card-frame' : 'border border-slate-800'} bg-slate-950 shadow-md flex flex-col transition relative">
             <div class="relative w-full overflow-hidden">
-              ${buildCarouselHtml(parseImages(item), `attr-${idx}`, name)}
+              ${buildCarouselHtml(parseImages(item), `attr-${idx}`, name, item.photoAttributions)}
               ${badgeHtml}
 
               <button type="button" onclick="window.toggleFavorite('${sId}', event)" class="absolute top-3 right-3 z-30 w-8 h-8 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-sm transition active:scale-90 border border-white/20 cursor-pointer">
@@ -3831,7 +3831,7 @@
         const innerCardHtml = `
           <article id="card-${sId}" class="rounded-2xl overflow-hidden ${tier === 2 ? 'partner-card-frame' : 'border border-slate-800'} bg-slate-950 shadow-md flex flex-col transition relative">
             <div class="relative w-full overflow-hidden">
-              ${buildCarouselHtml(parseImages(item, 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800'), `med-${idx}`, name)}
+              ${buildCarouselHtml(parseImages(item, 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800'), `med-${idx}`, name, item.photoAttributions)}
               ${badgeHtml}
 
               <button type="button" onclick="window.toggleFavorite('${sId}', event)" class="absolute top-3 right-3 z-30 w-8 h-8 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-sm transition active:scale-90 border border-white/20 cursor-pointer">
@@ -6055,7 +6055,53 @@ const arbitration = forcedCity ? { mode: 'specific', city: forcedCity } : detect
       return [fallback || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800'];
     }
 
-    function buildCarouselHtml(images, uniqueId, altTitle) {
+    // PHOTO_CREDIT_HELPERS_START
+// Display-only: does not fetch photos or call Google APIs.
+function parsePhotoAttributions(value) {
+  try {
+    const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+    const result = Object.create(null);
+    Object.entries(parsed).forEach(([url, authors]) => {
+      if (/^https:\/\/lh[0-9]+\.googleusercontent\.com\//.test(url) && Array.isArray(authors)) {
+        result[url] = authors.filter(author => typeof author === 'string').slice(0, 10);
+      }
+    });
+    return result;
+  } catch (_) { return {}; }
+}
+
+function escapePhotoCredit(value) {
+  return String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function decodePhotoCredit(value) {
+  return value.replace(/&(?:amp|quot|apos|lt|gt|#39|#34);/g, entity =>
+    ({'&amp;':'&','&quot;':'"','&apos;':"'",'&lt;':'<','&gt;':'>','&#39;':"'",'&#34;':'"'}[entity]));
+}
+
+function renderPhotoAttribution(imageUrl, metadata) {
+  if (!/^https:\/\/lh[0-9]+\.googleusercontent\.com\//.test(String(imageUrl))) return '';
+  const authors = parsePhotoAttributions(metadata)[imageUrl] || [];
+  const rendered = authors.map(author => {
+    // Never insert provider HTML. Extract a plain label and a validated HTTPS link.
+    const label = decodePhotoCredit(author.replace(/<[^>]*>/g, '')).trim();
+    if (!label) return '';
+    const match = author.match(/<a\s+[^>]*href\s*=\s*["']([^"']+)["'][^>]*>/i);
+    let href = '';
+    if (match) {
+      try {
+        const url = new URL(decodePhotoCredit(match[1]));
+        if (url.protocol === 'https:' && !url.username && !url.password) href = url.href;
+      } catch (_) { /* Invalid provider link: keep the author name as text. */ }
+    }
+    return href ? `<a href="${escapePhotoCredit(href)}" target="_blank" rel="noopener noreferrer" style="text-decoration:underline;pointer-events:auto">${escapePhotoCredit(label)}</a>` : escapePhotoCredit(label);
+  }).filter(Boolean);
+  return `<div class="photo-attribution" translate="no" style="position:absolute;top:44px;left:8px;right:8px;z-index:15;width:fit-content;max-width:calc(100% - 16px);padding:2px 5px;border-radius:3px;background:rgba(0,0,0,.8);color:white;font:400 12px/1.4 sans-serif;pointer-events:auto"><span style="white-space:nowrap">Google Maps</span>${rendered.length ? ' · ' + rendered.join(' · ') : ''}</div>`;
+}
+
+    // PHOTO_CREDIT_HELPERS_END
+    function buildCarouselHtml(images, uniqueId, altTitle, photoAttributions) {
       if (!images || images.length === 0) images = ["https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800"];
       const hasMultiple = images.length > 1;
 
@@ -6063,8 +6109,9 @@ const arbitration = forcedCity ? { mode: 'specific', city: forcedCity } : detect
         <div class="relative h-48 w-full bg-slate-900 overflow-hidden select-none">
           <div id="track-${uniqueId}" class="carousel-track flex w-full h-full overflow-x-auto hide-scrollbar cursor-grab active:cursor-grabbing">
             ${images.map(img => `
-              <div class="carousel-slide flex-shrink-0 w-full h-full pointer-events-none">
+              <div class="carousel-slide relative flex-shrink-0 w-full h-full pointer-events-none">
                 <img src="${img}" alt="${altTitle}" class="w-full h-full object-cover select-none pointer-events-none" loading="lazy" />
+                ${renderPhotoAttribution(img, photoAttributions)}
               </div>
             `).join('')}
           </div>
@@ -6530,3 +6577,4 @@ const arbitration = forcedCity ? { mode: 'specific', city: forcedCity } : detect
   </script>
 </body>
 </html>
+
