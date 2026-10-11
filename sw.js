@@ -7,7 +7,7 @@
  */
 
 // 👉 每次重大發布修改此版本號，強制手機客戶端熱更新
-const CACHE_VERSION = '20261009-v51.7';
+const CACHE_VERSION = '20261011-photo-credit';
 const STATIC_CACHE_NAME = `bigv-static-${CACHE_VERSION}`;
 const IMAGE_CACHE_NAME = `bigv-images-${CACHE_VERSION}`;
 const PREFERENCES_CACHE_NAME = 'tour2gether-preferences';
@@ -263,3 +263,4 @@ self.addEventListener('notificationclick', (event) => {
     })
   );
 });
+
