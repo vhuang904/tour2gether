@@ -6111,7 +6111,6 @@ function renderPhotoAttribution(imageUrl, metadata) {
             ${images.map(img => `
               <div class="carousel-slide relative flex-shrink-0 w-full h-full pointer-events-none">
                 <img src="${img}" alt="${altTitle}" class="w-full h-full object-cover select-none pointer-events-none" loading="lazy" />
-                ${renderPhotoAttribution(img, photoAttributions)}
               </div>
             `).join('')}
           </div>
