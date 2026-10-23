@@ -6,7 +6,8 @@ import {
   GoogleAuthProvider, 
   signInWithPopup, 
   signInWithRedirect, 
-  getRedirectResult, 
+  getRedirectResult,
+  getAdditionalUserInfo,
   signOut, 
   onAuthStateChanged,
   sendSignInLinkToEmail,
@@ -20,6 +21,7 @@ import {
   doc, 
   getDoc, 
   getDocFromServer,
+  runTransaction,
   setDoc, 
   updateDoc, 
   collection, 
@@ -60,6 +62,7 @@ setPersistence(auth, browserLocalPersistence).catch(err => {
 const googleProvider = new GoogleAuthProvider();
 // 拿掉 prompt: 'select_account'，讓瀏覽器記住上次選取的帳號，實現一鍵靜默授權
 googleProvider.setCustomParameters({});
+googleProvider.addScope("email");
 
 let currentUserProfile = null;
 
@@ -86,79 +89,104 @@ function broadcastAuthChange(user, profile) {
   window.dispatchEvent(event);
 }
 
-// 核心：雙軌互通會員資料庫讀取與同步
-export async function fetchOrCreateUserProfile(user) {
+function normalizeMemberEmail(value) {
+  const email = typeof value === 'string' ? value.trim().toLowerCase() : '';
+  return /^[^\s@,;<>]+@[^\s@,;<>]+\.[^\s@,;<>]+$/.test(email) ? email : '';
+}
+
+// A result is used only for the same Firebase UID. Never persist OAuth tokens.
+async function resolveMemberEmail(user, result) {
+  const primary = normalizeMemberEmail(user.email);
+  if (primary) return primary;
+  const google = (user.providerData || []).find(p => p.providerId === 'google.com');
+  const providerEmail = normalizeMemberEmail(google?.email);
+  if (providerEmail) return providerEmail;
+  if (!result || result.user?.uid !== user.uid || result.providerId !== 'google.com') return '';
+  const info = getAdditionalUserInfo(result);
+  const profile = info?.providerId === 'google.com' ? info.profile : null;
+  const profileEmail = normalizeMemberEmail(profile?.email);
+  if (profileEmail && (profile.email_verified === true || profile.verified_email === true)) return profileEmail;
+  const credential = GoogleAuthProvider.credentialFromResult(result);
+  if (!credential?.accessToken || !google?.uid) return '';
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10000);
+  try {
+    const response = await fetch('https://openidconnect.googleapis.com/v1/userinfo', {
+      headers: { Authorization: 'Bearer ' + credential.accessToken },
+      cache: 'no-store', credentials: 'omit', signal: controller.signal
+    });
+    if (!response.ok) return '';
+    const data = await response.json();
+    if (data.sub !== google.uid || data.email_verified !== true) return '';
+    return normalizeMemberEmail(data.email);
+  } finally { clearTimeout(timer); }
+}
+
+// Only the email is backfilled on existing profiles; transactions protect concurrent logins.
+export async function fetchOrCreateUserProfile(user, result = null) {
   if (!user) {
     currentUserProfile = null;
     broadcastAuthChange(null, null);
     return null;
   }
-
-  const userEmail = (user.email || "").toLowerCase().trim();
-  const userRef = doc(db, "users", user.uid);
-
+  let userEmail = '';
+  try { userEmail = await resolveMemberEmail(user, result); }
+  catch (_) { console.warn('[AuthService] Email lookup unavailable; existing profile retained.'); }
+  const userRef = doc(db, 'users', user.uid);
   try {
-    const docSnap = await getDoc(userRef);
-
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      currentUserProfile = {
-        uid: user.uid,
-        displayName: data.displayName || user.displayName || "",
-        photoURL: data.photoURL || user.photoURL || "",
-        email: userEmail,
-        points: typeof data.points === "number" ? data.points : 50,
-        level: data.level || calculateUserLevel(data.points || 50)
-      };
-    } else {
-      let inheritedPoints = 50;
-      let inheritedLevel = "LV.1 探店初心者";
-
-      if (userEmail) {
-        try {
-          const emailQuery = query(collection(db, "users"), where("email", "==", userEmail));
-          const querySnap = await getDocs(emailQuery);
-          if (!querySnap.empty) {
-            const oldData = querySnap.docs[0].data();
-            inheritedPoints = oldData.points || 50;
-            inheritedLevel = oldData.level || calculateUserLevel(inheritedPoints);
-          }
-        } catch (queryErr) {
-          console.warn("[AuthService] 檢查歷史帳號略過:", queryErr);
+    const snapshot = await getDoc(userRef);
+    let inheritedPoints = 50;
+    let inheritedLevel = 'LV.1 探店初心者';
+    if (!snapshot.exists() && userEmail) {
+      try {
+        const matches = await getDocs(query(collection(db, 'users'), where('email', '==', userEmail)));
+        if (!matches.empty) {
+          const old = matches.docs[0].data();
+          inheritedPoints = old.points || 50;
+          inheritedLevel = old.level || calculateUserLevel(old.points || 50);
         }
-      }
-
-      const newProfile = {
-        displayName: user.displayName || "",
-        photoURL: user.photoURL || "",
-        email: userEmail,
-        points: inheritedPoints,
-        level: inheritedLevel,
-        createdAt: serverTimestamp(),
-        lastLoginAt: serverTimestamp()
-      };
-
-      await setDoc(userRef, newProfile, { merge: true });
-      currentUserProfile = {
-        uid: user.uid,
-        ...newProfile
-      };
+      } catch (_) { console.warn('[AuthService] Historical profile lookup unavailable.'); }
     }
-
-    broadcastAuthChange(user, currentUserProfile);
-    return currentUserProfile;
-  } catch (error) {
-    console.error("[AuthService] 讀取/建立會員資料失敗:", error);
-    currentUserProfile = {
-      uid: user.uid,
-      displayName: user.displayName || "",
-      photoURL: user.photoURL || "",
-      email: userEmail,
-      points: 50,
-      level: "LV.1 探店初心者"
+    // Normal/restored sessions retain the existing cache-friendly read path.
+    const saved = snapshot.exists() ? snapshot.data() : null;
+    const data = saved && (String(saved.email || '').trim() || !userEmail) ? saved : await runTransaction(db, async transaction => {
+      const current = await transaction.get(userRef);
+      if (current.exists()) {
+        const existing = current.data();
+        if (!String(existing.email || '').trim() && userEmail) {
+          transaction.update(userRef, { email: userEmail });
+          return { ...existing, email: userEmail };
+        }
+        return existing;
+      }
+      const created = {
+        displayName: user.displayName || '', photoURL: user.photoURL || '',
+        email: userEmail, points: inheritedPoints, level: inheritedLevel,
+        createdAt: serverTimestamp(), lastLoginAt: serverTimestamp()
+      };
+      transaction.set(userRef, created);
+      return created;
+    });
+    const profile = {
+      uid: user.uid, displayName: data.displayName || user.displayName || '',
+      photoURL: data.photoURL || user.photoURL || '', email: data.email || '',
+      points: typeof data.points === 'number' ? data.points : 50,
+      level: data.level || calculateUserLevel(data.points || 50)
     };
-    broadcastAuthChange(user, currentUserProfile);
-    return currentUserProfile;
+    if (auth.currentUser?.uid !== user.uid) return profile;
+    currentUserProfile = profile;
+    broadcastAuthChange(user, profile);
+    return profile;
+  } catch (error) {
+    console.error('[AuthService] Member profile save failed:', error.code || 'unknown');
+    const profile = {
+      uid: user.uid, displayName: user.displayName || '', photoURL: user.photoURL || '',
+      email: userEmail, points: 50, level: 'LV.1 探店初心者'
+    };
+    if (auth.currentUser?.uid !== user.uid) return profile;
+    currentUserProfile = profile;
+    broadcastAuthChange(user, profile);
+    return profile;
   }
 }
 
@@ -168,7 +196,7 @@ export async function loginWithGoogle() {
   try {
     const result = await signInWithPopup(auth, googleProvider);
     if (result && result.user) {
-      const profile = await fetchOrCreateUserProfile(result.user);
+      const profile = await fetchOrCreateUserProfile(result.user, result);
       return profile;
     }
     return null;
@@ -401,7 +429,7 @@ export function initAuthService() {
       signInWithEmailLink(auth, email, window.location.href)
         .then(async (result) => {
           window.localStorage.removeItem("emailForSignIn");
-          await fetchOrCreateUserProfile(result.user);
+          await fetchOrCreateUserProfile(result.user, result);
           window.history.replaceState({}, document.title, window.location.pathname);
         })
         .catch((err) => {
@@ -414,7 +442,7 @@ export function initAuthService() {
   getRedirectResult(auth)
     .then(async (result) => {
       if (result && result.user) {
-        await fetchOrCreateUserProfile(result.user);
+        await fetchOrCreateUserProfile(result.user, result);
         window.history.replaceState({}, document.title, window.location.pathname);
       }
     })
