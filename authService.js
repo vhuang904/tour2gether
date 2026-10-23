@@ -1,3 +1,4 @@
+import { installMemberEmailPrompt } from './memberEmailPrompt.js';
 // authService.js - Tour2gether PWA 認證模組（全平台跨網域防阻擋高相容版 + Storage 圖片支援）
 
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -8,6 +9,8 @@ import {
   signInWithRedirect, 
   getRedirectResult,
   getAdditionalUserInfo,
+  reauthenticateWithPopup,
+  reauthenticateWithRedirect,
   signOut, 
   onAuthStateChanged,
   sendSignInLinkToEmail,
@@ -134,7 +137,11 @@ export async function fetchOrCreateUserProfile(user, result = null) {
   catch (_) { console.warn('[AuthService] Email lookup unavailable; existing profile retained.'); }
   const userRef = doc(db, 'users', user.uid);
   try {
-    const snapshot = await getDoc(userRef);
+    let snapshot = await getDoc(userRef);
+    // Cached empty data must not prompt someone whose email is already saved on the server.
+    if (!snapshot.exists() || !String(snapshot.data().email || '').trim()) {
+      snapshot = await getDocFromServer(userRef);
+    }
     let inheritedPoints = 50;
     let inheritedLevel = 'LV.1 探店初心者';
     if (!snapshot.exists() && userEmail) {
@@ -170,6 +177,7 @@ export async function fetchOrCreateUserProfile(user, result = null) {
     const profile = {
       uid: user.uid, displayName: data.displayName || user.displayName || '',
       photoURL: data.photoURL || user.photoURL || '', email: data.email || '',
+      emailSyncRequired: !String(data.email || '').trim() && (user.providerData || []).some(p => p.providerId === 'google.com'),
       points: typeof data.points === 'number' ? data.points : 50,
       level: data.level || calculateUserLevel(data.points || 50)
     };
@@ -188,6 +196,33 @@ export async function fetchOrCreateUserProfile(user, result = null) {
     broadcastAuthChange(user, profile);
     return profile;
   }
+}
+
+// Explicit user action only: reauthenticate the current account instead of switching accounts.
+export async function confirmGoogleMemberEmail(expectedUid) {
+  const user = auth.currentUser;
+  if (!user || user.uid !== expectedUid) throw Object.assign(new Error('Account changed'), { code: 'auth/user-mismatch' });
+  const provider = new GoogleAuthProvider();
+  provider.addScope('email');
+  provider.setCustomParameters({ prompt: 'select_account' });
+  let result;
+  try { result = await reauthenticateWithPopup(user, provider); }
+  catch (error) {
+    if (error.code === 'auth/popup-blocked') {
+      await reauthenticateWithRedirect(user, provider);
+      return { redirecting: true };
+    }
+    throw error;
+  }
+  if (auth.currentUser?.uid !== expectedUid || result.user.uid !== expectedUid) {
+    throw Object.assign(new Error('Account changed'), { code: 'auth/user-mismatch' });
+  }
+  await fetchOrCreateUserProfile(result.user, result);
+  const verified = await getDocFromServer(doc(db, 'users', expectedUid));
+  if (auth.currentUser?.uid !== expectedUid) throw Object.assign(new Error('Account changed'), { code: 'auth/user-mismatch' });
+  const email = verified.exists() ? normalizeMemberEmail(verified.data().email) : '';
+  if (!email) throw Object.assign(new Error('Email not saved'), { code: 'member/email-not-saved' });
+  return { email };
 }
 
 // 1. Google 登入
@@ -417,6 +452,7 @@ export async function addStoreComment(storeId, commentPayload, photos = []) {
 
 // 5. 初始化認證監聽
 export function initAuthService() {
+  installMemberEmailPrompt(confirmGoogleMemberEmail);
   auth.languageCode = getAuthLanguage();
   if (isSignInWithEmailLink(auth, window.location.href)) {
     let email = window.localStorage.getItem("emailForSignIn");
