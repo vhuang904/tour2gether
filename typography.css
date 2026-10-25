@@ -1,0 +1,12 @@
+/* Shared with We2gether; SIL Open Font License is in ChironGoRoundTC-OFL.txt. */
+@font-face {
+  font-family: 'Chiron GoRound TC';
+  src: url('./ChironGoRoundTC-Regular.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+:root { --tour-font: 'Chiron GoRound TC', sans-serif; }
+html, html body, html body * {
+  font-family: var(--tour-font) !important;
+}

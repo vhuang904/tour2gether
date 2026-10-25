@@ -20,8 +20,8 @@
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome 6 CDN -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Local SVG icons (no icon font) -->
+  <link rel="stylesheet" href="./icons.css?v=20261025" />
     
   <style>
     /* 只隱藏語音麥克風按鈕，保留打字對話管家 */
@@ -990,6 +990,8 @@
     }
     
   </style>
+  <link rel="preload" href="./ChironGoRoundTC-Regular.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="./typography.css?v=20261025b" />
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
 
@@ -6097,7 +6099,7 @@ function renderPhotoAttribution(imageUrl, metadata) {
     }
     return href ? `<a href="${escapePhotoCredit(href)}" target="_blank" rel="noopener noreferrer" style="text-decoration:underline;pointer-events:auto">${escapePhotoCredit(label)}</a>` : escapePhotoCredit(label);
   }).filter(Boolean);
-  return `<div class="photo-attribution" translate="no" style="position:absolute;top:44px;left:8px;right:8px;z-index:15;width:fit-content;max-width:calc(100% - 16px);padding:2px 5px;border-radius:3px;background:rgba(0,0,0,.8);color:white;font:400 12px/1.4 sans-serif;pointer-events:auto"><span style="white-space:nowrap">Google Maps</span>${rendered.length ? ' · ' + rendered.join(' · ') : ''}</div>`;
+  return `<div class="photo-attribution" translate="no" style="position:absolute;top:44px;left:8px;right:8px;z-index:15;width:fit-content;max-width:calc(100% - 16px);padding:2px 5px;border-radius:3px;background:rgba(0,0,0,.8);color:white;font:400 12px/1.4 var(--tour-font);pointer-events:auto"><span style="white-space:nowrap">Google Maps</span>${rendered.length ? ' · ' + rendered.join(' · ') : ''}</div>`;
 }
 
     // PHOTO_CREDIT_HELPERS_END

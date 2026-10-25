@@ -7,7 +7,7 @@
  */
 
 // 👉 每次重大發布修改此版本號，強制手機客戶端熱更新
-const CACHE_VERSION = '20261012-clean-photo-cards';
+const CACHE_VERSION = '20261025-chiron-font';
 const STATIC_CACHE_NAME = `bigv-static-${CACHE_VERSION}`;
 const IMAGE_CACHE_NAME = `bigv-images-${CACHE_VERSION}`;
 const PREFERENCES_CACHE_NAME = 'tour2gether-preferences';
@@ -21,7 +21,10 @@ const PRECACHE_ASSETS = [
   './manifest.json',
   './ai-avatar.jpg',
   './googleSheetService.js',
-  './authService.js'
+  './authService.js',
+  './typography.css?v=20261025b',
+  './icons.css?v=20261025',
+  './ChironGoRoundTC-Regular.woff2'
 ];
 
 // 1. 安裝階段：立即跳過等待，預載核心外殼

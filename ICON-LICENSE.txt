@@ -1,0 +1,1 @@
+Font Awesome Free 6.4.0 SVG icons by Fonticons, Inc. https://fontawesome.com/ - Licensed under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/ . SVG artwork is embedded as CSS masks in icons.css. No Font Awesome font files are used.
